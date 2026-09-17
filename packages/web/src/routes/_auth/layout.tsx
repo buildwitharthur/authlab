@@ -1,8 +1,15 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRouteMetadata } from "../../lib/route-metadata";
 import { Card } from "../../components/ui/card";
 import { Accent, Eyebrow, Heading, Text } from "../../components/ui/typography";
 
 export const Route = createFileRoute("/_auth")({
+  head: () =>
+    createRouteMetadata({
+      title: "Acesse sua conta | AuthLab",
+      description:
+        "Entre ou crie sua conta no AuthLab para fazer parte do mural de membros.",
+    }),
   component: AuthLayout,
 });
 
