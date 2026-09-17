@@ -1,5 +1,5 @@
 {
-  "name": "auth-lab",
+  "name": "@authlab",
   "private": true,
   "scripts": {
     "build": "turbo run build",
