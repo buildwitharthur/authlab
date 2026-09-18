@@ -1,0 +1,32 @@
+{
+  "name": "@authlab/database",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "env:load": "dotenv -e ../../.env --",
+    "db:generate": "pnpm env:load prisma generate",
+    "db:migrate": "pnpm env:load prisma migrate dev",
+    "db:deploy": "pnpm env:load prisma migrate deploy",
+    "db:studio": "pnpm env:load prisma studio"
+  },
+  "dependencies": {
+    "@authlab/env": "workspace:*",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@authlab/ts-config": "workspace:*",
+    "@types/node": "^22.20.3",
+    "@types/pg": "^8.15.5",
+    "prisma": "7.10.0",
+    "typescript": "7.0.2"
+  }
+}

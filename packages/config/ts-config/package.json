@@ -1,0 +1,11 @@
+{
+    "name": "@authlab/ts-config",
+    "version": "1.0.0",
+    "private": true,
+    "files": [
+        "tsconfig.json"
+    ],
+    "exports": {
+        "./tsconfig.json": "./tsconfig.json"
+    }
+}

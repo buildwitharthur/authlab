@@ -1,0 +1,26 @@
+{
+    "$schema": "https://www.schemastore.org/tsconfig",
+    "_version": "24.0.0",
+    "compilerOptions": {
+        "lib": [
+            "ES2024",
+            "ESNext.Array",
+            "ESNext.Collection",
+            "ESNext.Error",
+            "ESNext.Iterator",
+            "ESNext.Promise"
+        ],
+        "module": "NodeNext",
+        "target": "ES2024",
+        "types": ["node"],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "Node16",
+        "rootDir": "${configDir}/src",
+        "outDir": "${configDir}/build",
+        "paths": {
+            "@/*": ["${configDir}/src/*"]
+        }
+    }
+}

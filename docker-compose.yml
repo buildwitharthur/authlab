@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: authlab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authlab
+      POSTGRES_USER: authlab
+      POSTGRES_PASSWORD: authlab
+    ports:
+      - "5432:5432"
+    volumes:
+      - authlab_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authlab -d authlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  authlab_postgres_data:
