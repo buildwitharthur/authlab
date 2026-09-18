@@ -45,7 +45,7 @@ export const profile: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Members'],
-                description: 'Returns the signed-in user\'s profile.',
+                description: "Returns the signed-in user's profile.",
                 response: {
                     200: profileResponseSchema,
                     401: errorResponseSchema,

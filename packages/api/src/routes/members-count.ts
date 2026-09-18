@@ -19,7 +19,8 @@ export const membersCount: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Members'],
-                description: 'Returns the total number of registered accounts. Public.',
+                description:
+                    'Returns the total number of registered accounts. Public.',
                 response: {
                     200: membersCountResponseSchema,
                 },

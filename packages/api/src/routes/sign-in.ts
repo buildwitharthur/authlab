@@ -11,8 +11,8 @@ import { SESSION_COOKIE_NAME } from '@/plugins/jwt.js';
 
 const signInBodySchema = z
     .object({
-        email: z.string().trim().toLowerCase().email(),
-        password: z.string().min(1),
+        email: z.string().trim().toLowerCase().email('Invalid email address'),
+        password: z.string().min(1, 'Password is required'),
     })
     .meta({
         example: {
@@ -43,7 +43,8 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Auth'],
-                description: 'Signs in with email and password, starting a session cookie.',
+                description:
+                    'Signs in with email and password, starting a session cookie.',
                 body: signInBodySchema,
                 response: {
                     200: signInResponseSchema,
@@ -56,11 +57,17 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
             const { email, password } = request.body;
 
             const user = await prisma.user.findUnique({ where: { email } });
-            const passwordMatches = user ? await verify(user.passwordHash, password) : false;
+            const passwordMatches = user
+                ? await verify(user.passwordHash, password)
+                : false;
 
-            if (!user || !passwordMatches) throw new UnauthorizedError('Invalid email or password');
+            if (!user || !passwordMatches)
+                throw new UnauthorizedError('Invalid email or password');
 
-            const token = await reply.jwtSign({ sub: user.id }, { expiresIn: '7d' });
+            const token = await reply.jwtSign(
+                { sub: user.id },
+                { expiresIn: '7d' },
+            );
 
             reply.setCookie(SESSION_COOKIE_NAME, token);
 

@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { createRouteMetadata } from '../../../lib/route-metadata';
 import { toast } from 'sonner';
 
 import { useSignIn } from '../../../api/hooks/useSignIn';
@@ -8,12 +7,7 @@ import { Accent, Heading, Text } from '../../../components/ui/typography';
 import type { SignInBody } from '#/api/types/SignIn';
 
 export const Route = createFileRoute('/_auth/_sign-in/')({
-    head: () =>
-        createRouteMetadata({
-            title: 'Entrar | AuthLab',
-            description:
-                'Entre na sua conta AuthLab e acesse seu perfil e o mural de membros.',
-        }),
+    head: () => ({ meta: [{ title: 'Entrar | AuthLab' }] }),
     component: SignInPage,
 });
 
@@ -23,7 +17,6 @@ function SignInPage() {
     const { mutateAsync } = useSignIn({
         mutation: {
             onSuccess: () => navigate({ to: '/app' }),
-            onError: (error) => toast.error(error.data.message),
         },
     });
 

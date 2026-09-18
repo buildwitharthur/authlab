@@ -4,8 +4,10 @@ import { pluginAxios } from '@kubb/plugin-axios';
 import { pluginReactQuery } from '@kubb/plugin-react-query';
 import { pluginZod } from '@kubb/plugin-zod';
 
+const apiUrl = process.env.VITE_URL ?? 'http://localhost:8080';
+
 export default defineConfig({
-    input: 'http://localhost:8080/openapi.json',
+    input: `${apiUrl}/openapi.json`,
     output: {
         path: './src/api',
         clean: true,

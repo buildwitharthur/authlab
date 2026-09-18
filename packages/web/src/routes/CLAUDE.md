@@ -52,9 +52,8 @@ disponíveis quando isso fizer sentido para o estado apresentado.
 
 ## Metadados e navegação
 
-Defina `head` com `createRouteMetadata`, usando título e descrição próprios.
-Use `noIndex` em conteúdo que não deve ser indexado; metadados não controlam
-acesso.
+Defina `head` retornando `{ meta: [{ title: '...' }] }`, com um título próprio
+por rota.
 
 Use `Link` e destinos tipados para navegação interna. Quando a indicação ativa
 exigir correspondência exata, use `activeOptions` com `exact` e preserve

@@ -1,16 +1,10 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { createRouteMetadata } from '../../lib/route-metadata';
 import { AppFooter } from '../../components/app-footer';
 import { AppHeader } from '../../components/app-header';
 import { AuthGuard } from '../../components/auth-guard';
 
 export const Route = createFileRoute('/app')({
-    head: () =>
-        createRouteMetadata({
-            title: 'Área do membro | AuthLab',
-            description: 'Acesse sua área de membro e acompanhe a comunidade AuthLab.',
-            noIndex: true,
-        }),
+    head: () => ({ meta: [{ title: 'Área do membro | AuthLab' }] }),
     component: AppLayout,
 });
 

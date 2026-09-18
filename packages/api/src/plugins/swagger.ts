@@ -21,8 +21,14 @@ export const swaggerPlugin = (app: FastifyInstance) => {
                 },
             },
             tags: [
-                { name: 'Authentication', description: 'Sign up, sign in, and sign out.' },
-                { name: 'Members', description: 'Member profile and directory data.' },
+                {
+                    name: 'Authentication',
+                    description: 'Sign up, sign in, and sign out.',
+                },
+                {
+                    name: 'Members',
+                    description: 'Member profile and directory data.',
+                },
             ],
         },
 

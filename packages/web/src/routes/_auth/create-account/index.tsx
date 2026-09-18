@@ -3,16 +3,10 @@ import { toast } from 'sonner';
 import { useCreateAccount } from '../../../api/hooks/useCreateAccount';
 import { CreateAccountForm } from '../../../components/create-account-form';
 import { Accent, Heading, Text } from '../../../components/ui/typography';
-import { createRouteMetadata } from '../../../lib/route-metadata';
 import type { CreateAccountBody } from '#/api/types/CreateAccount';
 
 export const Route = createFileRoute('/_auth/create-account/')({
-    head: () =>
-        createRouteMetadata({
-            title: 'Criar conta | AuthLab',
-            description:
-                'Crie sua conta no AuthLab, receba as boas-vindas e escolha fazer parte do mural.',
-        }),
+    head: () => ({ meta: [{ title: 'Criar conta | AuthLab' }] }),
     component: CreateAccountPage,
 });
 
@@ -23,11 +17,6 @@ function CreateAccountPage() {
             onSuccess: () => {
                 toast.success('Conta criada! Entre com seu e-mail e senha.');
                 navigate({ to: '/' });
-            },
-            onError: (error) => {
-                toast.error(
-                    error.data.message || 'Não foi possível criar sua conta. Tente novamente.',
-                );
             },
         },
     });

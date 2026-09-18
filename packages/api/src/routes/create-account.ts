@@ -10,9 +10,9 @@ import { sendEmail } from '@authlab/email';
 
 const createAccountBodySchema = z
     .object({
-        name: z.string().trim().min(1),
-        email: z.string().trim().toLowerCase().email(),
-        password: z.string().min(8),
+        name: z.string().trim().min(1, 'Name is required'),
+        email: z.string().trim().toLowerCase().email('Invalid email address'),
+        password: z.string().min(8, 'Password must be at least 8 characters'),
         showOnWall: z.boolean(),
     })
     .meta({

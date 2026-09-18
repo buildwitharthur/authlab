@@ -1,5 +1,9 @@
-import { createFileRoute, Link, Navigate, Outlet } from '@tanstack/react-router';
-import { createRouteMetadata } from '../../lib/route-metadata';
+import {
+    createFileRoute,
+    Link,
+    Navigate,
+    Outlet,
+} from '@tanstack/react-router';
 import { Card } from '../../components/ui/card';
 import { Accent, Eyebrow, Heading, Text } from '../../components/ui/typography';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -7,11 +11,7 @@ import { useProfile } from '../../api/hooks/useProfile';
 import { useGetMembersCount } from '../../api/hooks/useGetMembersCount';
 
 export const Route = createFileRoute('/_auth')({
-    head: () =>
-        createRouteMetadata({
-            title: 'Acesse sua conta | AuthLab',
-            description: 'Entre ou crie sua conta no AuthLab para fazer parte do mural de membros.',
-        }),
+    head: () => ({ meta: [{ title: 'Acesse sua conta | AuthLab' }] }),
     component: AuthLayout,
 });
 
@@ -52,9 +52,13 @@ function AuthLayout() {
                     >
                         Entre. Faça parte. <Accent>Fique no mural.</Accent>
                     </Heading>
-                    <Text size="lg" className="mt-7.5 max-w-147.5 text-base leading-[1.75]">
-                        Um experimento de autenticação web construído em público. Crie sua conta,
-                        receba as boas-vindas e entre para o mosaico.
+                    <Text
+                        size="lg"
+                        className="mt-7.5 max-w-147.5 text-base leading-[1.75]"
+                    >
+                        Um experimento de autenticação web construído em
+                        público. Crie sua conta, receba as boas-vindas e entre
+                        para o mosaico.
                     </Text>
                     <div className="mt-[var(--space-8)] flex max-w-105 items-center gap-4.5 border-t border-border pt-[var(--space-5)]">
                         {membersCount ? (
@@ -65,7 +69,11 @@ function AuthLayout() {
                             <Skeleton className="h-8.5 w-14" />
                         )}
                         <div className="grid gap-1">
-                            <Text size="sm" tone="default" className="text-[13px] font-semibold">
+                            <Text
+                                size="sm"
+                                tone="default"
+                                className="text-[13px] font-semibold"
+                            >
                                 pessoas já entraram
                             </Text>
                             <Text size="sm" tone="muted">
@@ -85,7 +93,8 @@ function AuthLayout() {
                             activeOptions={{ exact: true }}
                             className="flex min-h-[var(--touch-target-min)] items-center justify-center rounded-[var(--radius-md)] px-4 text-sm text-muted-foreground transition-colors duration-[var(--motion-fast)] focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none"
                             activeProps={{
-                                className: 'bg-secondary text-secondary-foreground',
+                                className:
+                                    'bg-secondary text-secondary-foreground',
                                 'aria-current': 'page',
                             }}
                         >
@@ -96,7 +105,8 @@ function AuthLayout() {
                             activeOptions={{ exact: true }}
                             className="flex min-h-[var(--touch-target-min)] items-center justify-center rounded-[var(--radius-md)] px-4 text-sm text-muted-foreground transition-colors duration-[var(--motion-fast)] focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none"
                             activeProps={{
-                                className: 'bg-secondary text-secondary-foreground',
+                                className:
+                                    'bg-secondary text-secondary-foreground',
                                 'aria-current': 'page',
                             }}
                         >

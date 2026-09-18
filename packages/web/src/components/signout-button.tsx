@@ -1,6 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 import { Button } from './ui/button';
 import { profileQueryKey } from '../api/hooks/useProfile';
@@ -16,8 +15,6 @@ export function SignOutButton() {
                 queryClient.removeQueries({ queryKey: profileQueryKey() });
                 navigate({ to: '/', replace: true });
             },
-            onError: (error) =>
-                toast.error(error.message || 'Não foi possível sair. Tente novamente.'),
         },
     });
 
@@ -26,7 +23,12 @@ export function SignOutButton() {
     }
 
     return (
-        <Button variant="ghost" size="sm" onClick={handleSignOut} disabled={isSigningOut}>
+        <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+        >
             {isSigningOut ? 'Saindo…' : 'Sair'}
         </Button>
     );

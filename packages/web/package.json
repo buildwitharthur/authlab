@@ -9,7 +9,9 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "env:load": "dotenv -e .env --",
+    "kubb:generate": "pnpm env:load kubb generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

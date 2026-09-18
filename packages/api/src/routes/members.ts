@@ -41,7 +41,8 @@ export const members: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Members'],
-                description: 'Lists members who opted into the wall, ordered by member number.',
+                description:
+                    'Lists members who opted into the wall, ordered by member number.',
                 response: {
                     200: listMembersResponseSchema,
                     401: errorResponseSchema,

@@ -1,7 +1,7 @@
 import { client } from '#/api/.kubb/client';
 
 client.setConfig({
-    baseURL: 'http://localhost:8080',
+    baseURL: import.meta.env.VITE_URL ?? 'http://localhost:8080',
     options: {
         withCredentials: true,
     },

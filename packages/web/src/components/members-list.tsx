@@ -57,7 +57,11 @@ export function MembersList({ currentMemberId }: MembersListProps) {
                                 open={activeMemberId === member.id}
                                 onOpenChange={(open) =>
                                     setActiveMemberId((previous) =>
-                                        open ? member.id : previous === member.id ? null : previous,
+                                        open
+                                            ? member.id
+                                            : previous === member.id
+                                              ? null
+                                              : previous,
                                     )
                                 }
                             />
@@ -65,7 +69,11 @@ export function MembersList({ currentMemberId }: MembersListProps) {
                     ))}
                 </ul>
             </TooltipProvider>
-            <Text size="sm" tone="subdued" className="mt-[var(--space-4)] text-[11px]">
+            <Text
+                size="sm"
+                tone="subdued"
+                className="mt-[var(--space-4)] text-[11px]"
+            >
                 Passe o mouse, toque ou use Tab para conhecer alguém.
             </Text>
         </section>
