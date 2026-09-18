@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { signInSchema, type SignInValues } from '../schemas/sign-in';
+
 import { Button } from './ui/button';
 import { FormField } from './ui/form-field';
+import { signInBodySchema } from '#/api/zod/signInSchema';
+import type { SignInBody } from '#/api/types/SignIn';
 
 interface SignInFormProps {
-    onSubmit: (values: SignInValues) => void | Promise<void>;
+    onSubmit: (values: SignInBody) => void | Promise<void>;
 }
 
 export function SignInForm({ onSubmit }: SignInFormProps) {
@@ -14,17 +15,13 @@ export function SignInForm({ onSubmit }: SignInFormProps) {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<SignInValues>({
-        resolver: zodResolver(signInSchema),
+    } = useForm<SignInBody>({
+        resolver: zodResolver(signInBodySchema),
         defaultValues: { email: '', password: '' },
     });
 
-    async function submit(values: SignInValues) {
-        try {
-            await onSubmit(values);
-        } catch {
-            toast.error('Não foi possível entrar. Tente novamente.');
-        }
+    async function submit(values: SignInBody) {
+        await onSubmit(values);
     }
 
     return (

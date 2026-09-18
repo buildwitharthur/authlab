@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { MemberWallSkeleton } from './member-wall-skeleton';
+import { MembersListSkeleton } from './members-list-skeleton';
 import { WelcomeHeroSkeleton } from './welcome-hero-skeleton';
 
 export interface AppSkeletonProps extends ComponentProps<'div'> {}
@@ -15,9 +15,11 @@ export function AppSkeleton({ className, ...props }: AppSkeletonProps) {
             className={twMerge('w-full min-w-0', className)}
             {...props}
         >
-            <span className="sr-only">Carregando seu perfil e o mural de membros…</span>
+            <span className="sr-only">
+                Carregando seu perfil e o mural de membros…
+            </span>
             <WelcomeHeroSkeleton />
-            <MemberWallSkeleton />
+            <MembersListSkeleton />
         </div>
     );
 }

@@ -1,13 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { createAccountSchema, type CreateAccountValues } from '../schemas/create-account';
+
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { FormField } from './ui/form-field';
+import type { CreateAccountBody } from '#/api/types/CreateAccount';
+import { createAccountBodySchema } from '#/api/zod/createAccountSchema';
 
 interface CreateAccountFormProps {
-    onSubmit: (values: CreateAccountValues) => void | Promise<void>;
+    onSubmit: (values: CreateAccountBody) => void | Promise<void>;
 }
 
 export function CreateAccountForm({ onSubmit }: CreateAccountFormProps) {
@@ -15,17 +16,13 @@ export function CreateAccountForm({ onSubmit }: CreateAccountFormProps) {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<CreateAccountValues>({
-        resolver: zodResolver(createAccountSchema),
+    } = useForm<CreateAccountBody>({
+        resolver: zodResolver(createAccountBodySchema),
         defaultValues: { name: '', email: '', password: '', showOnWall: true },
     });
 
-    async function submit(values: CreateAccountValues) {
-        try {
-            await onSubmit(values);
-        } catch {
-            toast.error('Não foi possível criar sua conta. Tente novamente.');
-        }
+    async function submit(values: CreateAccountBody) {
+        await onSubmit(values);
     }
 
     return (

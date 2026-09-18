@@ -8,10 +8,16 @@ type TabsProps = Omit<ComponentProps<typeof BaseTabs.Root>, 'className'> & {
 type TabsListProps = Omit<ComponentProps<typeof BaseTabs.List>, 'className'> & {
     className?: string;
 };
-type TabsTriggerProps = Omit<ComponentProps<typeof BaseTabs.Tab>, 'className'> & {
+type TabsTriggerProps = Omit<
+    ComponentProps<typeof BaseTabs.Tab>,
+    'className'
+> & {
     className?: string;
 };
-type TabsContentProps = Omit<ComponentProps<typeof BaseTabs.Panel>, 'className'> & {
+type TabsContentProps = Omit<
+    ComponentProps<typeof BaseTabs.Panel>,
+    'className'
+> & {
     className?: string;
 };
 
@@ -19,7 +25,10 @@ export function Tabs({ className, ...props }: TabsProps) {
     return (
         <BaseTabs.Root
             data-slot="tabs"
-            className={twMerge('w-full', typeof className === 'string' ? className : undefined)}
+            className={twMerge(
+                'w-full',
+                typeof className === 'string' ? className : undefined,
+            )}
             {...props}
         />
     );

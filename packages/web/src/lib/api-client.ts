@@ -1,10 +1,10 @@
-import { client } from "#/api/.kubb/client";
+import { client } from '#/api/.kubb/client';
 
 client.setConfig({
-  baseURL: "http://localhost:8080",
-  options: {
-    withCredentials: true,
-  },
+    baseURL: 'http://localhost:8080',
+    options: {
+        withCredentials: true,
+    },
 });
 
 export { client };

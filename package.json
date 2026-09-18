@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/node": "^22.20.3",
     "dotenv-cli": "11.0.0",
     "prettier": "3.9.6",
     "turbo": "^2.10.13",

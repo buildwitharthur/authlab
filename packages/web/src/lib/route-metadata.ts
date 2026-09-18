@@ -4,7 +4,11 @@ interface RouteMetadataOptions {
     noIndex?: boolean;
 }
 
-export function createRouteMetadata({ title, description, noIndex = false }: RouteMetadataOptions) {
+export function createRouteMetadata({
+    title,
+    description,
+    noIndex = false,
+}: RouteMetadataOptions) {
     return {
         meta: [
             { title },

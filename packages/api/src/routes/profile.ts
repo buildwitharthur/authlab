@@ -56,7 +56,9 @@ export const profile: FastifyPluginAsyncZod = async (app) => {
             preHandler: [async (request) => await request.verifyAuth()],
         },
         async (request, reply) => {
-            const user = await prisma.user.findUnique({ where: { id: request.userId! } });
+            const user = await prisma.user.findUnique({
+                where: { id: request.userId! },
+            });
 
             if (!user) throw new UnauthorizedError();
 

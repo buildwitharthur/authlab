@@ -17,11 +17,17 @@ export const headingVariants = tv({
     defaultVariants: { size: 'md' },
 });
 
-export interface HeadingProps extends ComponentProps<'h2'>, VariantProps<typeof headingVariants> {
+export interface HeadingProps
+    extends ComponentProps<'h2'>, VariantProps<typeof headingVariants> {
     as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-export function Heading({ as: Tag = 'h2', size, className, ...props }: HeadingProps) {
+export function Heading({
+    as: Tag = 'h2',
+    size,
+    className,
+    ...props
+}: HeadingProps) {
     return (
         <Tag
             data-slot="heading"
@@ -51,7 +57,8 @@ export const textVariants = tv({
     defaultVariants: { size: 'md', tone: 'subtle' },
 });
 
-export interface TextProps extends ComponentProps<'p'>, VariantProps<typeof textVariants> {}
+export interface TextProps
+    extends ComponentProps<'p'>, VariantProps<typeof textVariants> {}
 
 export function Text({ size, tone, className, ...props }: TextProps) {
     return (
@@ -77,5 +84,11 @@ export function Eyebrow({ className, ...props }: ComponentProps<'span'>) {
 }
 
 export function Accent({ className, ...props }: ComponentProps<'span'>) {
-    return <span data-slot="accent" className={twMerge('text-primary', className)} {...props} />;
+    return (
+        <span
+            data-slot="accent"
+            className={twMerge('text-primary', className)}
+            {...props}
+        />
+    );
 }

@@ -5,11 +5,16 @@ import { twMerge } from 'tailwind-merge';
 export const TooltipProvider = BaseTooltip.Provider;
 export const Tooltip = BaseTooltip.Root;
 
-export function TooltipTrigger({ ...props }: ComponentProps<typeof BaseTooltip.Trigger>) {
+export function TooltipTrigger({
+    ...props
+}: ComponentProps<typeof BaseTooltip.Trigger>) {
     return <BaseTooltip.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-type TooltipContentProps = Omit<ComponentProps<typeof BaseTooltip.Popup>, 'className'> & {
+type TooltipContentProps = Omit<
+    ComponentProps<typeof BaseTooltip.Popup>,
+    'className'
+> & {
     className?: string;
 };
 

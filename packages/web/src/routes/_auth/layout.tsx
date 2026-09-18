@@ -1,20 +1,33 @@
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import {
+    createFileRoute,
+    Link,
+    Navigate,
+    Outlet,
+} from '@tanstack/react-router';
 import { createRouteMetadata } from '../../lib/route-metadata';
 import { Card } from '../../components/ui/card';
 import { Accent, Eyebrow, Heading, Text } from '../../components/ui/typography';
+import { Skeleton } from '../../components/ui/skeleton';
+import { useProfile } from '../../api/hooks/useProfile';
+import { useGetMembersCount } from '../../api/hooks/useGetMembersCount';
 
 export const Route = createFileRoute('/_auth')({
     head: () =>
         createRouteMetadata({
             title: 'Acesse sua conta | AuthLab',
-            description: 'Entre ou crie sua conta no AuthLab para fazer parte do mural de membros.',
+            description:
+                'Entre ou crie sua conta no AuthLab para fazer parte do mural de membros.',
         }),
     component: AuthLayout,
 });
 
 function AuthLayout() {
-    // Placeholder do protótipo; será substituído pela contagem retornada pela API.
-    const memberCount = 42;
+    const { data: membersCount } = useGetMembersCount();
+    const { isLoading, data: user } = useProfile();
+
+    if (isLoading) return null;
+
+    if (user) return <Navigate to="/app" />;
 
     return (
         <div className="min-h-svh bg-[radial-gradient(circle_at_82%_8%,color-mix(in_srgb,var(--brand-primary)_5%,transparent),transparent_26%)]">
@@ -48,16 +61,28 @@ function AuthLayout() {
                     >
                         Entre. Faça parte. <Accent>Fique no mural.</Accent>
                     </Heading>
-                    <Text size="lg" className="mt-7.5 max-w-147.5 text-base leading-[1.75]">
-                        Um experimento de autenticação web construído em público. Crie sua conta,
-                        receba as boas-vindas e entre para o mosaico.
+                    <Text
+                        size="lg"
+                        className="mt-7.5 max-w-147.5 text-base leading-[1.75]"
+                    >
+                        Um experimento de autenticação web construído em
+                        público. Crie sua conta, receba as boas-vindas e entre
+                        para o mosaico.
                     </Text>
                     <div className="mt-[var(--space-8)] flex max-w-105 items-center gap-4.5 border-t border-border pt-[var(--space-5)]">
-                        <strong className="font-display text-[34px] tracking-[-0.06em] text-primary">
-                            {memberCount}
-                        </strong>
+                        {membersCount ? (
+                            <strong className="font-display text-[34px] tracking-[-0.06em] text-primary">
+                                {membersCount.count}
+                            </strong>
+                        ) : (
+                            <Skeleton className="h-8.5 w-14" />
+                        )}
                         <div className="grid gap-1">
-                            <Text size="sm" tone="default" className="text-[13px] font-semibold">
+                            <Text
+                                size="sm"
+                                tone="default"
+                                className="text-[13px] font-semibold"
+                            >
                                 pessoas já entraram
                             </Text>
                             <Text size="sm" tone="muted">
@@ -77,7 +102,8 @@ function AuthLayout() {
                             activeOptions={{ exact: true }}
                             className="flex min-h-[var(--touch-target-min)] items-center justify-center rounded-[var(--radius-md)] px-4 text-sm text-muted-foreground transition-colors duration-[var(--motion-fast)] focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none"
                             activeProps={{
-                                className: 'bg-secondary text-secondary-foreground',
+                                className:
+                                    'bg-secondary text-secondary-foreground',
                                 'aria-current': 'page',
                             }}
                         >
@@ -88,7 +114,8 @@ function AuthLayout() {
                             activeOptions={{ exact: true }}
                             className="flex min-h-[var(--touch-target-min)] items-center justify-center rounded-[var(--radius-md)] px-4 text-sm text-muted-foreground transition-colors duration-[var(--motion-fast)] focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none"
                             activeProps={{
-                                className: 'bg-secondary text-secondary-foreground',
+                                className:
+                                    'bg-secondary text-secondary-foreground',
                                 'aria-current': 'page',
                             }}
                         >

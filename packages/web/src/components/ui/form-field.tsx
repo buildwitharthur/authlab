@@ -25,11 +25,14 @@ export function FormField({
             .filter(Boolean)
             .join(' ') || undefined;
     return (
-        <div data-slot="form-field" className={twMerge('grid gap-2', containerClassName)}>
+        <div
+            data-slot="form-field"
+            className={twMerge('grid gap-2', containerClassName)}
+        >
             <label
                 data-slot="field-label"
                 htmlFor={inputId}
-                className="font-sans text-xs font-medium text-foreground-subtle"
+                className="font-sans text-[11px] font-medium text-foreground-subtle"
             >
                 {label}
             </label>
@@ -45,7 +48,7 @@ export function FormField({
                     id={messageId}
                     role={error ? 'alert' : undefined}
                     className={twMerge(
-                        'text-xs text-muted-foreground',
+                        'text-[11px] text-muted-foreground',
                         error && 'text-destructive',
                     )}
                 >

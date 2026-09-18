@@ -1,11 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { ResponseError } from '../../../api/.kubb/client';
 import { useCreateAccount } from '../../../api/hooks/useCreateAccount';
 import { CreateAccountForm } from '../../../components/create-account-form';
 import { Accent, Heading, Text } from '../../../components/ui/typography';
 import { createRouteMetadata } from '../../../lib/route-metadata';
-import type { CreateAccountValues } from '../../../schemas/create-account';
+import type { CreateAccountBody } from '#/api/types/CreateAccount';
 
 export const Route = createFileRoute('/_auth/create-account/')({
     head: () =>
@@ -19,24 +18,29 @@ export const Route = createFileRoute('/_auth/create-account/')({
 
 function CreateAccountPage() {
     const navigate = useNavigate();
-    const { mutateAsync } = useCreateAccount();
+    const { mutateAsync } = useCreateAccount({
+        mutation: {
+            onSuccess: () => {
+                toast.success('Conta criada! Entre com seu e-mail e senha.');
+                navigate({ to: '/' });
+            },
+            onError: (error) => {
+                toast.error(
+                    error.data.message || 'Não foi possível criar sua conta. Tente novamente.',
+                );
+            },
+        },
+    });
 
-    async function handleCreateAccount(values: CreateAccountValues) {
-        try {
-            await mutateAsync({ body: values });
-            toast.success('Conta criada! Entre com seu e-mail e senha.');
-            navigate({ to: '/' });
-        } catch (error) {
-            if (error instanceof ResponseError && error.status === 409) {
-                toast.error('Este e-mail já está cadastrado. Tente entrar.');
-                return;
-            }
-            throw error;
-        }
+    async function handleCreateAccount(values: CreateAccountBody) {
+        await mutateAsync({ body: values });
     }
 
     return (
-        <section aria-labelledby="create-account-heading" className="grid gap-6">
+        <section
+            aria-labelledby="create-account-heading"
+            className="grid gap-6 animate-fade-in-up motion-reduce:animate-none"
+        >
             <div className="grid gap-2">
                 <Heading
                     as="h2"

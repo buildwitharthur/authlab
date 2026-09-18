@@ -10,29 +10,30 @@ import type {
     UseQueryResult,
 } from '@tanstack/react-query';
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/client';
-import type { ProfileStatus200, ProfileStatus401 } from '../types/Profile';
+import type { GetMembersCountStatus200 } from '../types/GetMembersCount';
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import { profile } from '../clients/profile';
+import { getMembersCount } from '../clients/getMembersCount';
 
-export const profileQueryKey = () => [{ url: '/profile' }] as const;
+export const getMembersCountQueryKey = () =>
+    [{ url: '/members/count' }] as const;
 
-type ProfileQueryKey = ReturnType<typeof profileQueryKey>;
+type GetMembersCountQueryKey = ReturnType<typeof getMembersCountQueryKey>;
 
-export function profileQueryOptions(
+export function getMembersCountQueryOptions(
     config: Partial<
         Omit<RequestConfig, 'path' | 'query' | 'body' | 'headers' | 'url'>
     > = {},
 ) {
-    const queryKey = profileQueryKey();
+    const queryKey = getMembersCountQueryKey();
     return queryOptions<
-        ProfileStatus200,
-        ResponseErrorConfig<ProfileStatus401>,
-        ProfileStatus200,
+        GetMembersCountStatus200,
+        ResponseErrorConfig<Error>,
+        GetMembersCountStatus200,
         typeof queryKey
     >({
         queryKey,
         queryFn: async ({ signal }) => {
-            return profile({
+            return getMembersCount({
                 ...config,
                 signal: config.signal ?? signal,
                 throwOnError: true,
@@ -42,19 +43,19 @@ export function profileQueryOptions(
 }
 
 /**
- * @description Retorna os dados do usuário autenticado a partir da sessão do cookie.
- * {@link /profile}
+ * @description Retorna o total de contas cadastradas no AuthLab. Pública, usada na página de autenticação.
+ * {@link /members/count}
  */
-export function useProfile<
-    TData = ProfileStatus200,
-    TQueryData = ProfileStatus200,
-    TQueryKey extends QueryKey = ProfileQueryKey,
+export function useGetMembersCount<
+    TData = GetMembersCountStatus200,
+    TQueryData = GetMembersCountStatus200,
+    TQueryKey extends QueryKey = GetMembersCountQueryKey,
 >(
     options: {
         query?: Partial<
             QueryObserverOptions<
-                ProfileStatus200,
-                ResponseErrorConfig<ProfileStatus401>,
+                GetMembersCountStatus200,
+                ResponseErrorConfig<Error>,
                 TData,
                 TQueryData,
                 TQueryKey
@@ -67,16 +68,16 @@ export function useProfile<
 ) {
     const { query: queryConfig = {}, client: config = {} } = options ?? {};
     const { client: queryClient, ...resolvedOptions } = queryConfig;
-    const queryKey = resolvedOptions?.queryKey ?? profileQueryKey();
+    const queryKey = resolvedOptions?.queryKey ?? getMembersCountQueryKey();
 
     const queryResult = useQuery(
         {
-            ...profileQueryOptions(config),
+            ...getMembersCountQueryOptions(config),
             ...resolvedOptions,
             queryKey,
         } as unknown as QueryObserverOptions,
         queryClient,
-    ) as UseQueryResult<TData, ResponseErrorConfig<ProfileStatus401>> & {
+    ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {
         queryKey: TQueryKey;
     };
 

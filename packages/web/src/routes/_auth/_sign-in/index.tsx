@@ -1,41 +1,41 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { createRouteMetadata } from '../../../lib/route-metadata';
 import { toast } from 'sonner';
-import { ResponseError } from '../../../api/.kubb/client';
+
 import { useSignIn } from '../../../api/hooks/useSignIn';
 import { SignInForm } from '../../../components/sign-in-form';
 import { Accent, Heading, Text } from '../../../components/ui/typography';
-import type { SignInValues } from '../../../schemas/sign-in';
+import type { SignInBody } from '#/api/types/SignIn';
 
 export const Route = createFileRoute('/_auth/_sign-in/')({
     head: () =>
         createRouteMetadata({
             title: 'Entrar | AuthLab',
-            description: 'Entre na sua conta AuthLab e acesse seu perfil e o mural de membros.',
+            description:
+                'Entre na sua conta AuthLab e acesse seu perfil e o mural de membros.',
         }),
     component: SignInPage,
 });
 
 function SignInPage() {
     const navigate = useNavigate();
-    const { mutateAsync } = useSignIn();
 
-    async function handleSignIn(values: SignInValues) {
-        try {
-            await mutateAsync({ body: values });
-            toast.success('Bem-vindo de volta!');
-            navigate({ to: '/app' });
-        } catch (error) {
-            if (error instanceof ResponseError && error.status === 401) {
-                toast.error('E-mail ou senha inválidos.');
-                return;
-            }
-            throw error;
-        }
+    const { mutateAsync } = useSignIn({
+        mutation: {
+            onSuccess: () => navigate({ to: '/app' }),
+            onError: (error) => toast.error(error.data.message),
+        },
+    });
+
+    async function handleSignIn(values: SignInBody) {
+        await mutateAsync({ body: values });
     }
 
     return (
-        <section aria-labelledby="sign-in-heading" className="grid gap-6">
+        <section
+            aria-labelledby="sign-in-heading"
+            className="grid gap-6 animate-fade-in-up motion-reduce:animate-none"
+        >
             <div className="grid gap-2">
                 <Heading
                     as="h2"

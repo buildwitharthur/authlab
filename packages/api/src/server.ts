@@ -9,9 +9,15 @@ import { scalarPlugin } from '@/plugins/scalar.js';
 import { swaggerPlugin } from '@/plugins/swagger.js';
 import { createAccount } from '@/routes/create-account.js';
 import { members } from '@/routes/members.js';
+import { membersCount } from '@/routes/members-count.js';
 import { profile } from '@/routes/profile.js';
 import { signIn } from '@/routes/sign-in.js';
-import { serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod';
+import { signOut } from '@/routes/sign-out.js';
+import {
+    serializerCompiler,
+    validatorCompiler,
+    ZodTypeProvider,
+} from 'fastify-type-provider-zod';
 import { authPlugin } from './plugins/auth.js';
 
 export const app = fastify({
@@ -33,7 +39,9 @@ app.get('/health', () => ({ status: 'ok' }));
 
 app.register(createAccount);
 app.register(signIn);
+app.register(signOut);
 app.register(profile);
 app.register(members);
+app.register(membersCount);
 
 app.listen({ port: env.PORT, host: env.HOST });

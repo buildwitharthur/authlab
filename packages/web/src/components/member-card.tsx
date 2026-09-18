@@ -1,20 +1,20 @@
-import type { Member } from '../types/member';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MemberSince } from './member-since';
+import type { ListMembersStatus200 } from '#/api/types/ListMembers';
 
-interface MemberTileProps {
-    member: Member;
+interface MemberCardProps {
+    member: ListMembersStatus200[0];
     isCurrentMember?: boolean;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function MemberTile({
+export function MemberCard({
     member,
     isCurrentMember = false,
     open,
     onOpenChange,
-}: MemberTileProps) {
+}: MemberCardProps) {
     const initials = member.name
         .trim()
         .split(/\s+/)
@@ -25,15 +25,18 @@ export function MemberTile({
     return (
         <Tooltip open={open} onOpenChange={onOpenChange}>
             <TooltipTrigger
-                data-member-tile=""
+                data-member-card=""
                 data-current={isCurrentMember ? '' : undefined}
                 closeOnClick={false}
                 onClick={() => onOpenChange(true)}
-                aria-label={`${member.name}, membro ${member.number}${isCurrentMember ? ', você' : ''}`}
+                aria-label={`${member.name}, membro ${member.memberNumber}${isCurrentMember ? ', você' : ''}`}
                 className="relative block aspect-square min-h-[var(--touch-target-min)] w-full cursor-pointer rounded-[var(--radius-md)] border border-border bg-surface text-foreground-subtle transition-[transform,background-color,border-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:shadow-focus data-[popup-open]:-translate-y-0.5 data-[popup-open]:border-primary data-[popup-open]:bg-primary data-[popup-open]:text-primary-foreground data-[current]:border-primary data-[current]:bg-primary data-[current]:text-primary-foreground motion-reduce:transform-none motion-reduce:transition-none"
             >
-                <span aria-hidden="true" className="absolute top-2 right-2 text-[9px] opacity-55">
-                    #{String(member.number).padStart(2, '0')}
+                <span
+                    aria-hidden="true"
+                    className="absolute top-2 right-2 text-[9px] opacity-55"
+                >
+                    #{String(member.memberNumber).padStart(2, '0')}
                 </span>
                 <span
                     aria-hidden="true"

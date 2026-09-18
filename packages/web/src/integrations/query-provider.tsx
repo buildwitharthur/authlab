@@ -10,10 +10,15 @@ export const QueryProvider = ({ children }: PropsWithChildren) => {
                 defaultOptions: {
                     queries: {
                         staleTime: STALE_TIME,
+                        retry: false,
                     },
                 },
             }),
     );
 
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    );
 };

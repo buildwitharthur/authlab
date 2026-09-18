@@ -78,17 +78,3 @@ O web ainda não declara uma tarefa `check-types`; para verificá-lo explicitame
 `pnpm --filter @authlab/web exec tsc --noEmit`. O build Vite não substitui essa verificação.
 Não há suíte de testes nem tarefas de lint nos pacotes atuais; a existência de um comando agregador
 na raiz não significa que todos os pacotes executam aquela verificação.
-
-## Estado atual do produto
-
-Os dados de negócio mockados no web são temporários e deverão vir da API: membro atual, membros do
-mural e contagens exibidas na interface. A API será a fonte de verdade desses dados; o web ficará
-responsável por consultar, manter o cache e apresentar as respostas. Os mocks permitem desenvolver
-a interface enquanto os endpoints correspondentes ainda não estão disponíveis.
-
-O cadastro está integrado de ponta a ponta: o web envia o formulário pelo cliente gerado, a API
-valida e persiste o usuário com hash de senha e número de membro, e tenta enviar a mensagem de
-boas-vindas. O formulário de entrada ainda apenas notifica indisponibilidade, o mural usa dados
-simulados, a saída de sessão está desabilitada e não há autenticação completa nem proteção efetiva
-da área de membro. Ao evoluir esses fluxos, siga as fronteiras acima e não trate a aparência da
-interface como evidência de implementação no servidor.

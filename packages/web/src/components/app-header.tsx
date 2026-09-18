@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { Button } from './ui/button';
 import { Accent } from './ui/typography';
+import { SignOutButton } from './signout-button';
 
 export function AppHeader() {
     return (
@@ -21,10 +21,7 @@ export function AppHeader() {
                     Auth<Accent className="font-medium">Lab</Accent>
                 </span>
             </Link>
-            {/* Habilitar quando o encerramento da sessão estiver integrado à API. */}
-            <Button variant="ghost" size="sm" disabled>
-                Sair
-            </Button>
+            <SignOutButton />
         </header>
     );
 }

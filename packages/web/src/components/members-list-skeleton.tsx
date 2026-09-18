@@ -1,8 +1,11 @@
 import { Skeleton } from './ui/skeleton';
 
-const placeholderIds = Array.from({ length: 40 }, (_, index) => `member-placeholder-${index}`);
+const placeholderIds = Array.from(
+    { length: 40 },
+    (_, index) => `member-placeholder-${index}`,
+);
 
-export function MemberWallSkeleton() {
+export function MembersListSkeleton() {
     return (
         <div
             aria-hidden="true"

@@ -57,11 +57,17 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
             const { email, password } = request.body;
 
             const user = await prisma.user.findUnique({ where: { email } });
-            const passwordMatches = user ? await verify(user.passwordHash, password) : false;
+            const passwordMatches = user
+                ? await verify(user.passwordHash, password)
+                : false;
 
-            if (!user || !passwordMatches) throw new UnauthorizedError('Invalid email or password');
+            if (!user || !passwordMatches)
+                throw new UnauthorizedError('Invalid email or password');
 
-            const token = await reply.jwtSign({ sub: user.id }, { expiresIn: '7d' });
+            const token = await reply.jwtSign(
+                { sub: user.id },
+                { expiresIn: '7d' },
+            );
 
             reply.setCookie(SESSION_COOKIE_NAME, token, {
                 httpOnly: true,

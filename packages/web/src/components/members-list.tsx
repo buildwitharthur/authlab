@@ -1,30 +1,22 @@
-import { useEffect, useState } from 'react';
-import type { Member } from '../types/member';
+import { useState } from 'react';
+
 import { Accent, Eyebrow, Heading, Text } from './ui/typography';
 import { TooltipProvider } from './ui/tooltip';
-import { MemberTile } from './member-tile';
+import { MemberCard } from './member-card';
+import { MembersListSkeleton } from './members-list-skeleton';
+import { useListMembers } from '#/api/hooks/useListMembers';
 
-interface MemberWallProps {
-    members: Member[];
+interface MembersListProps {
     currentMemberId?: string;
 }
 
-export function MemberWall({ members, currentMemberId }: MemberWallProps) {
+export function MembersList({ currentMemberId }: MembersListProps) {
+    const { data: members, isLoading } = useListMembers();
     const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
 
-    useEffect(() => {
-        function dismissDetails(event: PointerEvent) {
-            if (
-                event.target instanceof Element &&
-                !event.target.closest('[data-member-tile], [data-slot="tooltip-content"]')
-            ) {
-                setActiveMemberId(null);
-            }
-        }
-
-        document.addEventListener('pointerdown', dismissDetails);
-        return () => document.removeEventListener('pointerdown', dismissDetails);
-    }, []);
+    if (isLoading || !members) {
+        return <MembersListSkeleton />;
+    }
 
     return (
         <section
@@ -59,7 +51,7 @@ export function MemberWall({ members, currentMemberId }: MemberWallProps) {
                 >
                     {members.map((member) => (
                         <li key={member.id} className="min-w-0">
-                            <MemberTile
+                            <MemberCard
                                 member={member}
                                 isCurrentMember={member.id === currentMemberId}
                                 open={activeMemberId === member.id}

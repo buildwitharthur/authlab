@@ -15,7 +15,13 @@ export function Card({ className, ...props }: ComponentProps<'div'>) {
 }
 
 export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
-    return <div data-slot="card-header" className={twMerge('grid gap-2', className)} {...props} />;
+    return (
+        <div
+            data-slot="card-header"
+            className={twMerge('grid gap-2', className)}
+            {...props}
+        />
+    );
 }
 
 export function CardContent({ className, ...props }: ComponentProps<'div'>) {

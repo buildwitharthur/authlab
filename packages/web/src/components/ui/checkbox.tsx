@@ -1,12 +1,22 @@
 import { useId, type ComponentProps, type ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-export interface CheckboxProps extends Omit<ComponentProps<'input'>, 'type' | 'children'> {
+export interface CheckboxProps extends Omit<
+    ComponentProps<'input'>,
+    'type' | 'children'
+> {
     label: ReactNode;
     description?: string;
 }
 
-export function Checkbox({ id, label, description, className, disabled, ...props }: CheckboxProps) {
+export function Checkbox({
+    id,
+    label,
+    description,
+    className,
+    disabled,
+    ...props
+}: CheckboxProps) {
     const generatedId = useId();
     const inputId = id ?? generatedId;
     const describedBy =
@@ -32,7 +42,9 @@ export function Checkbox({ id, label, description, className, disabled, ...props
                 )}
             />
             <span className="grid gap-1">
-                <span className="text-xs font-medium text-foreground">{label}</span>
+                <span className="text-xs font-medium text-foreground">
+                    {label}
+                </span>
                 {description && (
                     <span
                         id={`${inputId}-description`}
