@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@authlab/env": "workspace:*",
+    "@authlab/database": "workspace:*",
     "@fastify/cookie": "^11.1.2",
     "@fastify/cors": "^11.3.0",
     "@fastify/jwt": "^10.2.2",

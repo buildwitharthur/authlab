@@ -6,7 +6,7 @@ export const env = createEnv({
         NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
         HOST: z.string().min(1).default('0.0.0.0'),
         PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
-        DATABASE_URL: z.string().url(),
+        DATABASE_URL: z.string().url().optional(),
         JWT_SECRET: z.string().min(1).default('auth-lab-development-secret'),
         COOKIE_SECRET: z.string().min(1).optional(),
         RESEND_API_KEY: z.string().min(1).optional(),

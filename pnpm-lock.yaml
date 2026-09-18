@@ -23,6 +23,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@authlab/database':
+        specifier: workspace:*
+        version: link:../database
       '@authlab/env':
         specifier: workspace:*
         version: link:../env
