@@ -17,13 +17,13 @@ uma única operação atômica; a coordenação do caso de uso permanece no serv
 
 ## Modelo e fronteiras de dados
 
-O modelo atual de usuário contém identificador UUID, nome, e-mail único, data de entrada e a escolha
-de aparecer no mural. O modelo declara valores padrão para identificador, data e visibilidade;
-a geração do UUID é feita pelo Prisma, enquanto data e visibilidade têm defaults na migração SQL.
+O modelo atual de usuário contém identificador UUID, nome, e-mail único, hash da senha, número de
+membro, data de entrada e a escolha de aparecer no mural. O identificador, o número sequencial, a
+data e a visibilidade têm defaults definidos no modelo. A API recebe `password` e `showOnWall`, mas
+persiste `passwordHash` e `showWall`; mantenha essa conversão explícita e nunca exponha o hash.
 
-Ainda não existe credencial de senha ou modelo de sessão. O número exibido para membros na interface
-também não é um campo persistido. Não suponha equivalência entre modelo Prisma, resposta HTTP e tipo
-visual: defina a conversão e os campos públicos no contrato da API.
+Ainda não existe modelo de sessão. Não suponha equivalência entre modelo Prisma, resposta HTTP e
+tipo visual: defina a conversão e os campos públicos no contrato da API.
 
 ## Como evoluir a persistência
 

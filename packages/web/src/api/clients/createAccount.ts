@@ -8,6 +8,7 @@ import type { CreateAccountOptions, CreateAccountResponses } from '../types/Crea
 import { client, withUnwrap } from '../.kubb/client'
 
 /**
+ * @description Cria uma nova conta, gera o hash da senha, atribui um número de membro sequencial e envia um e-mail de boas-vindas. Não autentica o chamador nem emite sessão.
  * {@link /create-account}
  */
 export function createAccount<ThrowOnError extends boolean = true>(options: Options<CreateAccountOptions, ThrowOnError>): Unwrappable<RequestResult<CreateAccountResponses, ThrowOnError>> {

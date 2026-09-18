@@ -5,12 +5,28 @@
 
 import * as z from 'zod'
 
-export const createAccountStatus200Schema = z.object({
+export const createAccountStatus201Schema = z.object({
+  id: z.uuid(),
   name: z.string(),
-}).strict()
+  email: z.string(),
+  memberNumber: z.int().min(-9007199254740991).max(9007199254740991),
+  showOnWall: z.boolean(),
+  joinedAt: z.iso.datetime(),
+}).strict().meta({ examples: [{}] })
 
-export const createAccountResponseSchema = createAccountStatus200Schema
+export const createAccountStatus409Schema = z.object({
+  error: z.string(),
+  message: z.string(),
+  statusCode: z.int().min(-9007199254740991).max(9007199254740991),
+}).strict().meta({ examples: [{}] })
+
+export const createAccountResponseSchema = createAccountStatus201Schema
+
+export const createAccountErrorSchema = createAccountStatus409Schema
 
 export const createAccountBodySchema = z.object({
-  name: z.string(),
-})
+  name: z.string().min(1),
+  email: z.email(),
+  password: z.string().min(8),
+  showOnWall: z.boolean(),
+}).meta({ examples: [{}] })

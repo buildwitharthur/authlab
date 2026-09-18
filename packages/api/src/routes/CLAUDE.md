@@ -6,14 +6,20 @@ Exporte uma função assíncrona tipada como `FastifyPluginAsyncZod` para regist
 na composição da API com `app.register`. Use nomes de operação em inglês e camelCase, coerentes com
 o `operationId` público.
 
-No registro do método HTTP, mantenha o schema junto do handler. Defina:
+Declare os schemas públicos como constantes nomeadas no módulo, antes do plugin, e referencie-os no
+registro do método HTTP. Use o nome da operação como prefixo, por exemplo
+`createAccountBodySchema` e `createAccountResponseSchema`; um schema de erro pode ter nome comum
+quando o mesmo formato é usado por mais de um status. Isso mantém o contrato legível sem afastá-lo
+do handler que o implementa.
+
+No schema da operação, defina:
 
 - `tags` para agrupar o domínio da operação na documentação;
 - uma descrição que explique comportamento e condições relevantes;
 - `operationId` único e estável, pois ele orienta os símbolos gerados no web;
 - schemas Zod de `body`, `params` e `querystring` quando a operação aceitar esses dados;
 - schemas de `response` por status, incluindo sucesso e falhas públicas esperadas;
-- `.meta({ example: ... })` nos schemas públicos de entrada e resposta, com exemplos completos e
+- `.meta({ example: ... })` nos schemas públicos com corpo estruturado, com exemplos completos e
   realistas que possam ser exibidos na documentação OpenAPI.
 
 O valor de `example` deve respeitar exatamente o schema ao qual está associado. Use dados fictícios,
@@ -21,8 +27,9 @@ mas plausíveis, sem segredos ou dados pessoais reais. Para um corpo `{ name: st
 use `.meta({ example: { name: 'Arthur Reis' } })` em vez de um objeto vazio. Documente também um
 exemplo representativo para cada resposta pública cujo formato seja diferente.
 
-O endpoint existente ainda tem descrição vazia e somente a resposta de sucesso documentada. Para
-novas operações, preencha o contrato conforme seu comportamento real.
+Respostas deliberadamente sem conteúdo podem usar `z.null()` e devem enviar `null`; não invente um
+objeto apenas para fornecer exemplo. Mantenha descrição, schemas e status coerentes com o
+comportamento real da operação.
 
 ## Padrão do handler
 
@@ -37,7 +44,9 @@ completo do banco: selecione os campos públicos definidos no contrato. A rota d
 o banco e o provedor de e-mail não devem assumir essa responsabilidade.
 
 O projeto não impõe atualmente um envelope único para respostas de sucesso. Preserve o contrato de
-cada operação. Os erros tratados centralmente seguem `{ error, message, statusCode }`.
+cada operação; por exemplo, o cadastro responde `201` com `null`. Os erros tratados centralmente
+seguem `{ error, message, statusCode }` e as falhas de negócio esperadas devem referenciar esse
+formato no mapa de respostas.
 
 ## Evolução do contrato
 
@@ -45,6 +54,7 @@ Mudar o `operationId` pode renomear clientes, hooks e tipos do web mesmo que a U
 campos ou status exige ajustar schemas e consumidores juntos. Após registrar ou alterar uma rota,
 publique o OpenAPI atualizado e execute a geração Kubb no pacote web.
 
-A rota de cadastro ainda não representa o formulário completo da interface. Antes de conectá-los,
-defina o contrato necessário e implemente a operação real; os campos existentes na UI não são
-implicitamente aceitos pelo servidor.
+A rota de cadastro exemplifica o padrão atual: schemas nomeados de entrada, sucesso e erro ficam no
+mesmo módulo; o contrato aceita `name`, `email`, `password` e `showOnWall`; e o handler converte esses
+dados para o modelo persistido sem expor `passwordHash`. O cliente do web deve continuar sendo
+regenerado a partir do OpenAPI sempre que esse contrato mudar.

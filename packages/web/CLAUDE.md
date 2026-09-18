@@ -68,8 +68,9 @@ atualize ou invalide as queries afetadas usando suas chaves, sem duplicar a resp
 desnecessários. Estado puramente visual pode usar estado React local.
 
 Schemas gerados representam o contrato HTTP; schemas de formulário representam a experiência de
-entrada. Faça conversões explícitas entre eles. Hoje o cadastro visual coleta mais dados do que a
-API aceita, portanto o cliente gerado ainda não conclui o fluxo apresentado na interface.
+entrada. Faça conversões explícitas quando os formatos divergirem. No cadastro atual, os valores
+`name`, `email`, `password` e `showOnWall` já correspondem ao corpo gerado e são enviados pela página
+com `useCreateAccount`; conflito de e-mail é tratado como erro específico antes do fallback genérico.
 
 ## Dados mockados e migração para a API
 

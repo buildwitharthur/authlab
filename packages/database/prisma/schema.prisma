@@ -8,9 +8,11 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  email     String   @unique
-  joinedAt  DateTime @default(now())
-  showWall  Boolean  @default(true)
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String   @unique
+  passwordHash String
+  memberNumber Int      @unique @default(autoincrement())
+  joinedAt     DateTime @default(now())
+  showWall     Boolean  @default(true)
 }

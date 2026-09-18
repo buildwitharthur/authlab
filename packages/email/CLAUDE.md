@@ -26,5 +26,7 @@ retentativas, implemente essa política explicitamente antes de depender dela.
 
 ## Estado da integração
 
-A API ainda não consome este pacote. O cadastro e as boas-vindas não enviam mensagens atualmente.
-Ao integrar esses fluxos, mantenha a decisão de negócio na API e o acesso ao provedor neste pacote.
+A API consome este pacote no cadastro para enviar a mensagem de boas-vindas depois de persistir o
+usuário. O handler inspeciona o erro retornado pelo provedor e o registra, mas mantém o cadastro
+concluído; portanto, o fluxo atual oferece tentativa de envio, não garantia de entrega. Mantenha a
+decisão de negócio na API e o acesso ao provedor neste pacote.

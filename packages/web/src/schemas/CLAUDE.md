@@ -24,10 +24,10 @@ A validação do navegador oferece feedback, mas o servidor continua responsáve
 entrada e aplicar regras de negócio. Os schemas daqui não são compartilhados diretamente com a API.
 Os schemas gerados pelo Kubb descrevem o transporte HTTP e têm outra fonte de verdade.
 
-O cadastro visual usa `name`, `email`, `password` e `showOnWall`. O contrato HTTP atual aceita somente
-`name`, e o modelo persistido usa `showWall` para visibilidade. Antes de integrar o formulário,
-evolua o contrato do servidor e faça a conversão explícita dos valores; não espalhe renomeações pelos
-controles nem envie campos adicionais supondo que o backend já os reconheça.
+O cadastro visual e o contrato HTTP usam `name`, `email`, `password` e `showOnWall`, por isso a página
+pode encaminhar os valores validados diretamente ao hook gerado. O modelo persistido usa
+`passwordHash` e `showWall`; essas conversões pertencem à API e não devem ser reproduzidas nos
+controles do formulário.
 
 Ao mudar um schema, revise o tipo inferido, os valores iniciais, as mensagens mostradas nos campos
 e o callback de envio. Alterar a experiência de validação não altera automaticamente o contrato

@@ -21,6 +21,7 @@ consumidores. Não importe este pacote no web: o contrato atual é exclusivament
 | `JWT_SECRET`     | Texto não vazio, com default de desenvolvimento             | Assinatura JWT                        |
 | `COOKIE_SECRET`  | Texto não vazio, opcional                                   | Configuração de assinatura de cookies |
 | `RESEND_API_KEY` | Texto não vazio, opcional                                   | Acesso ao provedor de e-mail          |
+| `EMAIL_FROM`     | Texto não vazio; remetente padrão de desenvolvimento        | Identidade de envio da aplicação      |
 
 Strings vazias são tratadas como ausência. Uma variável opcional permite a validação do ambiente sem
 aquele serviço configurado, mas não garante que a integração funcione sem ela. Configure os valores

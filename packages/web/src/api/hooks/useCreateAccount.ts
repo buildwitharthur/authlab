@@ -5,7 +5,7 @@
 
 import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import type { RequestConfig, ResponseErrorConfig } from '../.kubb/client'
-import type { CreateAccountOptions, CreateAccountStatus200 } from '../types/CreateAccount'
+import type { CreateAccountOptions, CreateAccountStatus201, CreateAccountStatus409 } from '../types/CreateAccount'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import { createAccount } from '../clients/createAccount'
 
@@ -13,7 +13,7 @@ export const createAccountMutationKey = () => [{ url: '/create-account' }] as co
 
 export function createAccountMutationOptions<TContext = unknown>(config: Partial<Omit<RequestConfig, 'path' | 'query' | 'body' | 'headers' | 'url'>> = {}) {
   const mutationKey = createAccountMutationKey()
-  return mutationOptions<CreateAccountStatus200, ResponseErrorConfig<Error>, CreateAccountOptions, TContext>({
+  return mutationOptions<CreateAccountStatus201, ResponseErrorConfig<CreateAccountStatus409>, CreateAccountOptions, TContext>({
     mutationKey,
     mutationFn: async({ body }) => {
       return createAccount({ ...config, body, throwOnError: true }).unwrap()
@@ -22,21 +22,22 @@ export function createAccountMutationOptions<TContext = unknown>(config: Partial
 }
 
 /**
+ * @description Cria uma nova conta, gera o hash da senha, atribui um número de membro sequencial e envia um e-mail de boas-vindas. Não autentica o chamador nem emite sessão.
  * {@link /create-account}
  */
 export function useCreateAccount<TContext>(options: {
-  mutation?: UseMutationOptions<CreateAccountStatus200, ResponseErrorConfig<Error>, CreateAccountOptions, TContext> & { client?: QueryClient },
+  mutation?: UseMutationOptions<CreateAccountStatus201, ResponseErrorConfig<CreateAccountStatus409>, CreateAccountOptions, TContext> & { client?: QueryClient },
   client?: Partial<Omit<RequestConfig, 'path' | 'query' | 'body' | 'headers' | 'url'>>,
 } = {}) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation;
   const mutationKey = mutationOptions.mutationKey ?? createAccountMutationKey()
 
-  const baseOptions = createAccountMutationOptions(config) as UseMutationOptions<CreateAccountStatus200, ResponseErrorConfig<Error>, CreateAccountOptions, TContext>
+  const baseOptions = createAccountMutationOptions(config) as UseMutationOptions<CreateAccountStatus201, ResponseErrorConfig<CreateAccountStatus409>, CreateAccountOptions, TContext>
 
-  return useMutation<CreateAccountStatus200, ResponseErrorConfig<Error>, CreateAccountOptions, TContext>({
+  return useMutation<CreateAccountStatus201, ResponseErrorConfig<CreateAccountStatus409>, CreateAccountOptions, TContext>({
     ...baseOptions,
     mutationKey,
     ...mutationOptions,
-  }, queryClient) as UseMutationResult<CreateAccountStatus200, ResponseErrorConfig<Error>, CreateAccountOptions, TContext>
+  }, queryClient) as UseMutationResult<CreateAccountStatus201, ResponseErrorConfig<CreateAccountStatus409>, CreateAccountOptions, TContext>
 }

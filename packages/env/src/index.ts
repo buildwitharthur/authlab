@@ -10,6 +10,7 @@ export const env = createEnv({
         JWT_SECRET: z.string().min(1).default('auth-lab-development-secret'),
         COOKIE_SECRET: z.string().min(1).optional(),
         RESEND_API_KEY: z.string().min(1).optional(),
+        EMAIL_FROM: z.string().min(1).default('AuthLab <onboarding@resend.dev>'),
     },
     runtimeEnv: process.env,
     emptyStringAsUndefined: true,

@@ -5,8 +5,8 @@
 Este pacote executa o servidor Fastify. Ele valida requisições, define respostas públicas e coordena
 as operações de negócio. Não deve importar componentes, formulários ou tipos internos do web.
 
-Use `@authlab/env` para configuração e `@authlab/database` para persistência. O envio de e-mails deve
-passar por `@authlab/email` quando integrado, com uma dependência de workspace explícita. As bibliotecas
+Use `@authlab/env` para configuração, `@authlab/database` para persistência e `@authlab/email` para
+envio de mensagens. Essas capacidades são dependências de workspace explícitas da API. As bibliotecas
 de infraestrutura não devem conhecer requisições Fastify nem decidir status HTTP.
 
 As rotas atuais são pequenas e concentram o handler da operação. Extraia serviços quando houver
@@ -49,14 +49,20 @@ Associe exemplos realistas aos schemas Zod públicos com `.meta({ example: ... }
 devem representar uma requisição ou resposta válida e aparecer na documentação OpenAPI para facilitar
 o entendimento e o teste manual da operação. Mantenha-os atualizados quando o contrato mudar.
 
+Declare os schemas de corpo, resposta e erros como constantes nomeadas no módulo da rota e faça o
+registro referenciá-los. Respostas sem corpo usam `z.null()` e o handler envia `null`; schemas com
+estrutura recebem exemplos compatíveis. As instruções de `src/routes` detalham essa organização.
+
 ## Autenticação e implementação atual
 
 JWT, cookies, CORS e limitação de requisições estão configurados como infraestrutura. O registro
 desses plugins não autentica rotas automaticamente. Ao criar uma operação protegida, implemente
 verificação de sessão/token e autorização no servidor antes de acessar dados privados.
 
-O cadastro atual é uma demonstração de contrato: aceita `name` e o devolve com status 200. Ainda não
-há criação de usuário, senha persistida, emissão de sessão ou envio de e-mail nessa operação.
+O cadastro aceita `name`, `email`, `password` e `showOnWall`, normaliza os dados definidos pelo schema,
+gera o hash da senha com Argon2, cria o usuário e tenta enviar a mensagem de boas-vindas. E-mail já
+cadastrado produz `ConflictError`; sucesso responde `201` com `null`. Uma falha retornada pelo provedor
+de e-mail é registrada e não desfaz o cadastro. A operação não emite sessão nem autentica o chamador.
 
 ## Convenções de desenvolvimento
 

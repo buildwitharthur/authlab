@@ -26,8 +26,9 @@ permitam combinações incompatíveis com a interação esperada.
   erros específicos no chamador, evite notificar a mesma falha duas vezes.
 
 Não transforme um formulário em cliente HTTP acoplado a um endpoint. A página decide o que acontece
-após sucesso, incluindo atualização de cache ou navegação. Os callbacks atuais de autenticação
-apenas informam que a funcionalidade ainda não está disponível.
+após sucesso, incluindo atualização de cache ou navegação. O cadastro já usa esse padrão para chamar
+a mutação, tratar conflito e navegar; o callback de entrada ainda apenas informa que a funcionalidade
+não está disponível.
 
 ## Apresentação e acessibilidade
 

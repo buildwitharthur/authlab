@@ -3,12 +3,71 @@
 * Do not edit manually.
 */
 
-export type CreateAccountStatus200 = {
+/**
+ * @example {"id":"3fa85f64-5717-4562-b3fc-2c963f66afa6","name":"Arthur Reis","email":"arthur@example.com","memberNumber":1,"showOnWall":true,"joinedAt":"2026-09-18T12:00:00.000Z"}
+ * @type object
+*/
+export type CreateAccountStatus201 = {
+    /**
+     * @description
+     * Format: `uuid`
+     * @type string
+    */
+    id: string;
     name: string;
+    email: string;
+    /**
+     * @minLength -9007199254740991
+     * @maxLength 9007199254740991
+     * @type integer
+    */
+    memberNumber: number;
+    showOnWall: boolean;
+    /**
+     * @description
+     * Format: `date-time`
+     * @type string
+    */
+    joinedAt: string;
 };
 
+/**
+ * @example {"error":"CONFLICT","message":"E-mail already registered","statusCode":409}
+ * @type object
+*/
+export type CreateAccountStatus409 = {
+    error: string;
+    message: string;
+    /**
+     * @minLength -9007199254740991
+     * @maxLength 9007199254740991
+     * @type integer
+    */
+    statusCode: number;
+};
+
+/**
+ * @example {"name":"Arthur Reis","email":"arthur@example.com","password":"senha-forte-123","showOnWall":true}
+ * @type object
+*/
 export type CreateAccountBody = {
+    /**
+     * @minLength 1
+     * @type string
+    */
     name: string;
+    /**
+     * @description
+     * Format: `email`
+     * @type string
+    */
+    email: string;
+    /**
+     * @minLength 8
+     * @type string
+    */
+    password: string;
+    showOnWall: boolean;
 };
 
 export type CreateAccountOptions = {
@@ -19,10 +78,11 @@ export type CreateAccountOptions = {
 };
 
 export type CreateAccountResponses = {
-    "200": CreateAccountStatus200;
+    "201": CreateAccountStatus201;
+    "409": CreateAccountStatus409;
 };
 
 /**
  * @description Union of all possible responses
 */
-export type CreateAccountResponse = CreateAccountStatus200;
+export type CreateAccountResponse = (CreateAccountStatus201 | CreateAccountStatus409);

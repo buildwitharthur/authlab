@@ -1,8 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { ResponseError } from '../../../api/.kubb/client';
+import { useCreateAccount } from '../../../api/hooks/useCreateAccount';
 import { CreateAccountForm } from '../../../components/create-account-form';
 import { Accent, Heading, Text } from '../../../components/ui/typography';
 import { createRouteMetadata } from '../../../lib/route-metadata';
+import type { CreateAccountValues } from '../../../schemas/create-account';
 
 export const Route = createFileRoute('/_auth/create-account/')({
     head: () =>
@@ -15,9 +18,21 @@ export const Route = createFileRoute('/_auth/create-account/')({
 });
 
 function CreateAccountPage() {
-    function handleCreateAccount() {
-        // Conectar ao endpoint de cadastro quando estiver disponível.
-        toast.info('O cadastro ainda não está disponível. Tente novamente em breve.');
+    const navigate = useNavigate();
+    const { mutateAsync } = useCreateAccount();
+
+    async function handleCreateAccount(values: CreateAccountValues) {
+        try {
+            await mutateAsync({ body: values });
+            toast.success('Conta criada! Entre com seu e-mail e senha.');
+            navigate({ to: '/' });
+        } catch (error) {
+            if (error instanceof ResponseError && error.status === 409) {
+                toast.error('Este e-mail já está cadastrado. Tente entrar.');
+                return;
+            }
+            throw error;
+        }
     }
 
     return (

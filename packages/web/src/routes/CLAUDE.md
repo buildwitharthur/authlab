@@ -21,6 +21,11 @@ não acrescenta outro segmento à URL.
 Uma página compõe a funcionalidade: títulos locais, componentes visuais e coordenação das ações.
 Evite implementar controles de formulário ou primitivas genéricas dentro dela.
 
+Quando uma ação usa uma mutação gerada, a página chama o hook, trata respostas conhecidas e decide
+os efeitos de sucesso, como notificação e navegação. Reconheça erros HTTP específicos pelo tipo do
+cliente e pelo status; depois de tratar um caso esperado, retorne. Relance falhas desconhecidas para
+que o formulário ou o limite de erro responsável apresente o fallback, sem duplicar notificações.
+
 Um layout mantém a estrutura compartilhada do ramo e renderiza os descendentes com `Outlet`.
 Use-o para cabeçalho, rodapé, largura de conteúdo e navegação compartilhada; não repita essa estrutura
 nas páginas. O layout de autenticação envolve os formulários, e o layout da aplicação mantém a

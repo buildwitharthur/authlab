@@ -23,10 +23,8 @@ o guia correspondente; documente decisões e contratos, sem criar um catálogo d
   secreta ou envio de e-mail no frontend, nem mesmo para compartilhar tipos de transporte.
 - Os schemas Zod das rotas da API originam o OpenAPI. O Kubb consome esse contrato e gera tipos,
   clientes HTTP, hooks React Query e schemas Zod para o web.
-- A API declara dependências de `database` e `env`; o acesso persistente ainda não é usado pela rota
-  de demonstração. `database` e `email` dependem de `env`.
-- O pacote de e-mail está disponível, mas a API ainda não declara nem usa essa dependência. Ao integrar
-  um fluxo de envio, adicione a dependência explicitamente.
+- A API declara dependências de `database`, `email` e `env`. O cadastro usa persistência e envio de
+  boas-vindas; `database` e `email` dependem de `env`.
 - As bibliotecas de infraestrutura não dependem da API ou do web. `env` não depende de outros pacotes
   de negócio. Evite ciclos entre pacotes.
 - Use os exports públicos pelo nome `@authlab/...` e declare dependências internas com `workspace:*`.
@@ -88,8 +86,9 @@ mural e contagens exibidas na interface. A API será a fonte de verdade desses d
 responsável por consultar, manter o cache e apresentar as respostas. Os mocks permitem desenvolver
 a interface enquanto os endpoints correspondentes ainda não estão disponíveis.
 
-A interface é um protótipo: os formulários de entrada e cadastro apenas notificam indisponibilidade,
-o mural usa dados simulados e a saída de sessão está desabilitada. A operação HTTP de cadastro
-apenas devolve o nome recebido. Não há autenticação completa, proteção efetiva da área de membro,
-persistência de cadastro ou envio de boas-vindas integrados. Ao implementar esses fluxos, siga as
-fronteiras acima e não trate a aparência da interface como evidência de implementação no servidor.
+O cadastro está integrado de ponta a ponta: o web envia o formulário pelo cliente gerado, a API
+valida e persiste o usuário com hash de senha e número de membro, e tenta enviar a mensagem de
+boas-vindas. O formulário de entrada ainda apenas notifica indisponibilidade, o mural usa dados
+simulados, a saída de sessão está desabilitada e não há autenticação completa nem proteção efetiva
+da área de membro. Ao evoluir esses fluxos, siga as fronteiras acima e não trate a aparência da
+interface como evidência de implementação no servidor.
