@@ -10,9 +10,8 @@ export const signOut: FastifyPluginAsyncZod = async (app) => {
         '/sign-out',
         {
             schema: {
-                tags: ['Authentication'],
-                description:
-                    'Encerra a sessão do usuário, limpando o cookie de sessão.',
+                tags: ['Auth'],
+                description: 'Signs out by clearing the session cookie.',
                 response: {
                     200: signOutResponseSchema,
                 },

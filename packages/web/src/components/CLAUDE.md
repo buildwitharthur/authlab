@@ -1,50 +1,64 @@
-# Componentes de funcionalidade
+# Padrões de componentes de funcionalidade
 
 ## Responsabilidade e composição
 
-Use esta camada para blocos reconhecíveis do produto, como formulários, apresentação do membro,
-mural, cabeçalho e rodapé. Componentes puramente visuais e reutilizáveis entre funcionalidades
-pertencem às primitivas de UI; decisões de navegação e coordenação da página pertencem às rotas.
+Componentes de funcionalidade representam blocos do produto. Diferencie
+coordenação de comportamento e apresentação:
 
-Prefira funções com exports nomeados e props tipadas. Receba dados por props e ações por callbacks.
-Componentes de apresentação não devem importar mocks nem abrir suas próprias conexões HTTP. Ao
-precisar de dados remotos, coordene a operação na página ou em um hook de aplicação e passe o resultado.
+- Componentes que coordenam uma funcionalidade podem consultar dados ou executar
+  mutações com hooks gerados, tratando seu ciclo de vida e efeitos.
+- Componentes de apresentação recebem dados e ações por props e não iniciam
+  requisições.
+- Primitivas de UI expressam interação e aparência reutilizável sem regras de negócio.
 
-Mantenha o estado visual no ancestral comum que coordena a interação. O mural, por exemplo, controla
-qual membro está aberto e passa `open` e `onOpenChange` aos itens. Evite estados independentes que
-permitam combinações incompatíveis com a interação esperada.
+Use funções com exports nomeados e props tipadas. Reutilize tipos gerados quando
+o componente apresentar diretamente dados do contrato; crie um tipo de
+apresentação apenas quando houver transformação concreta.
 
-## Padrão de formulário
+Mantenha estado visual no ancestral comum que coordena a interação. Quando apenas
+um item puder estar aberto, controle sua identidade no conjunto e passe
+`open` e `onOpenChange` aos itens.
 
-- Use React Hook Form com `zodResolver`, valores iniciais explícitos e tipos inferidos do schema.
-- O contrato de envio é `onSubmit(values): void | Promise<void>`; aguarde o callback para que o estado
-  de envio dure até o fim da operação assíncrona.
-- Use `handleSubmit`, `noValidate` e mensagens do schema para manter a validação consistente.
-- Encaminhe `register` às primitivas de campo e exiba os erros junto aos controles.
-- Durante envio, desabilite controles, ajuste o texto do botão e exponha `aria-busy` no formulário.
-- Os formulários atuais capturam falhas do callback e exibem uma notificação genérica. Ao tratar
-  erros específicos no chamador, evite notificar a mesma falha duas vezes.
+## Formulários
 
-Não transforme um formulário em cliente HTTP acoplado a um endpoint. A página decide o que acontece
-após sucesso, incluindo atualização de cache ou navegação. O cadastro já usa esse padrão para chamar
-a mutação, tratar conflito e navegar; o callback de entrada ainda apenas informa que a funcionalidade
-não está disponível.
+Use React Hook Form com `zodResolver`, valores iniciais explícitos e tipos
+compatíveis com o schema. Prefira schemas e tipos gerados quando o formulário
+representar a entrada da API; mantenha extensões de interface fora da geração.
+
+O contrato de envio é `onSubmit(values): void | Promise<void>`. Aguarde o
+callback para que `isSubmitting` acompanhe toda a operação. O chamador controla
+mutações, cache, notificações e navegação; o formulário cuida da entrada e
+dos erros de campo.
+
+Use `handleSubmit`, `noValidate` e mensagens junto aos controles.
+Encaminhe `register` às primitivas de campo. Durante o envio, desabilite
+controles, ajuste o texto da ação e exponha `aria-busy`.
+
+Defina o tratamento das falhas assíncronas no responsável pela ação. Se ele já
+notificou uma falha, não repita a mesma notificação no formulário. Não suponha
+que o formulário tenha um fallback HTTP automático.
+
+## Dados remotos e ações
+
+Use os hooks e as chaves gerados para consultas, mutações e manutenção do cache.
+Ações que mudam sessão precisam refletir a nova identidade nos dados remotos.
+Não duplique clientes HTTP nem armazene respostas como estado visual.
+
+Trate carregamento, erro, ausência de resultado e resposta vazia separadamente.
+Use skeletons enquanto a consulta estiver pendente e dê feedback adequado após
+falhas. Bloqueie repetição de ações durante uma mutação em andamento.
 
 ## Apresentação e acessibilidade
 
-Reutilize os componentes de tipografia, campos e botões. Use HTML semântico, relações entre títulos
-e seções, labels acessíveis e foco visível. Interações do mural precisam funcionar por mouse, toque
-e teclado, sem depender exclusivamente de hover.
+Reutilize tipografia, campos e botões compartilhados. Use HTML semântico,
+relações entre títulos e seções, labels acessíveis e foco visível.
+Interações devem funcionar por mouse, toque e teclado, sem depender apenas de hover.
 
-Apresente datas de membro em `pt-BR`, mantendo o elemento `time` com valor de máquina e a convenção
-UTC usada atualmente. Chaves de listas devem representar a identidade do dado.
+Apresente datas em `pt-BR`, com `time`, valor de máquina válido e a convenção
+UTC do produto. Use identidade estável como chave de listas. Iniciais e
+formatação são apresentação; identidade, numeração e datas de negócio vêm da API.
 
-## Carregamento e responsividade
-
-Crie skeletons com geometria próxima ao conteúdo final e composição equivalente por seção. O
-contêiner de carregamento anuncia o estado; os blocos decorativos permanecem ocultos de leitores
-de tela. Conecte esses componentes ao carregamento real quando houver integração de dados.
-
-Preserve a abordagem mobile first, a largura máxima compartilhada e os ajustes responsivos do
-contexto. Os layouts atuais usam ampliações a partir de 721 e 1081 pixels; não invente novos pontos
-de quebra para reproduzir uma composição já atendida pelos padrões existentes.
+Skeletons acompanham a geometria do conteúdo. Blocos decorativos usam
+`aria-hidden`; o contêiner responsável anuncia o carregamento.
+Preserve a composição mobile first, largura compartilhada e pontos de quebra
+do contexto antes de introduzir novos ajustes responsivos.

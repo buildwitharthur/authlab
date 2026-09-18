@@ -8,14 +8,14 @@ export const env = createEnv({
             .default('development'),
         HOST: z.string().min(1).default('0.0.0.0'),
         PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
-        DATABASE_URL: z.string().url().optional(),
+        DATABASE_URL: z.string().url(),
         JWT_SECRET: z.string().min(1).default('auth-lab-development-secret'),
         COOKIE_SECRET: z.string().min(1).optional(),
         RESEND_API_KEY: z.string().min(1).optional(),
         EMAIL_FROM: z
             .string()
             .min(1)
-            .default('AuthLab <onboarding@resend.dev>'),
+            .default('AuthLab <authlab@buildwitharthur.com.br>'),
     },
     runtimeEnv: process.env,
     emptyStringAsUndefined: true,

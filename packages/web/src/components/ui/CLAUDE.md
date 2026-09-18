@@ -1,47 +1,59 @@
-# Primitivas de interface
+# Padrões de primitivas de interface
 
-## Quando criar ou estender uma primitiva
+## Responsabilidade
 
-Use esta camada para controles e elementos visuais reutilizáveis sem conhecimento de membros,
-autenticação, API ou navegação de negócio. Antes de criar outro controle, avalie se uma variante ou
-composição de uma primitiva existente atende à necessidade.
+Primitivas encapsulam controles e elementos visuais reutilizáveis, sem conhecer
+autenticação, membros, API ou navegação de negócio. Antes de criar outro controle,
+avalie composição ou variantes de uma primitiva existente.
 
-As primitivas simples usam HTML nativo. Interações compostas, como tooltip e abas, encapsulam Base
-UI para preservar sua semântica e comportamento. Não substitua essa interação por implementações
-manuais apenas para ajustar aparência.
+Use HTML nativo para controles simples. Para interações compostas, como tooltip
+e abas, preserve o comportamento e a semântica da Base UI ao personalizar estilos.
 
-## API de componentes e classes
+## Props e variantes
 
 - Derive props com `ComponentProps` do elemento nativo ou da primitiva encapsulada.
-- Encaminhe as props pertinentes, incluindo acessibilidade, eventos e refs necessários aos campos.
-- Exponha `className` para ajustes de composição e combine-o com a base usando `twMerge`.
-- Use `tv` e `VariantProps` para opções visuais recorrentes, com variantes e defaults explícitos.
-- Identifique partes com `data-slot` e estados visuais com atributos consistentes, como
-  `data-disabled`; preserve também a propriedade funcional nativa `disabled`.
-- Botões usam `type="button"` como padrão. O consumidor declara `type="submit"` quando necessário.
+- Encaminhe atributos, eventos e refs necessários à integração com formulários.
+- Exponha `className` e combine estilos com `twMerge` quando houver composição
+  de classes.
+- Use `tv` e `VariantProps` para opções visuais recorrentes, com defaults claros.
+- Identifique partes com `data-slot` e estados com atributos consistentes,
+  preservando também propriedades funcionais como `disabled`.
+- Use `type="button"` por padrão; o consumidor declara `type="submit"`.
 
-Não adicione uma variante para cada tela. Uma primitiva deve expressar diferenças reutilizáveis;
-posicionamento e espaçamento de uma composição específica podem ser definidos pelo consumidor.
+Variantes expressam diferenças reutilizáveis. Posicionamento e espaçamento de
+uma composição específica pertencem ao consumidor. Mantenha estado controlado
+e callbacks compatíveis com a primitiva encapsulada.
 
 ## Sistema visual
 
-Use Tailwind com os tokens CSS compartilhados. Prefira cores semânticas, como `primary`, `surface`,
-`foreground`, `border` e `destructive`, em vez de repetir valores de cor nos componentes.
-Tipografia, raios, espaçamentos, sombras, duração de movimento e área de toque também têm tokens.
+Use Tailwind e tokens CSS compartilhados para cores semânticas, tipografia,
+raios, espaçamento, sombras e movimento. Preserve o tema escuro, o destaque
+verde e a distinção entre fontes de títulos e corpo.
 
-Preserve o tema escuro, o destaque verde e a distinção entre fonte de títulos e de corpo. Mudanças
-globais pertencem aos tokens; mudanças reutilizáveis de uma primitiva pertencem às suas variantes.
-Não crie um segundo tema por página para resolver uma diferença local.
+Mudanças globais pertencem aos tokens; diferenças reutilizáveis de um controle
+pertencem às variantes. Evite valores visuais duplicados e temas locais que
+divirjam das convenções do produto.
 
-## Acessibilidade como parte do contrato
+## Acessibilidade
 
-Campos associam label e controle por identificador estável, usando `useId` quando necessário.
-Mensagens são ligadas por `aria-describedby`; erros também usam `aria-invalid` e anúncio apropriado.
-Preserve descrições de acessibilidade fornecidas pelo consumidor ao compor esses atributos.
+Associe label e controle por identificador estável, usando `useId` quando
+necessário. Conecte mensagens com `aria-describedby`, preserve descrições do
+consumidor e marque erros com `aria-invalid` e anúncio apropriado.
 
-Mantenha foco visível, área mínima de toque de 44 pixels e suporte a movimento reduzido. Skeletons
-decorativos usam `aria-hidden`; o contêiner da funcionalidade anuncia o carregamento. Portais e
-estados controlados de componentes Base UI devem continuar operando ao personalizar estilos.
+Preserve foco visível, interação por teclado, suporte a movimento reduzido e
+o token de área mínima de toque nas composições interativas. Não use apenas
+cor ou hover para transmitir estado ou disponibilizar uma ação.
 
-O toaster visual é compartilhado e montado uma vez nas integrações. As funcionalidades disparam
-notificações pelo Sonner sem criar novas instâncias visuais em cada página.
+Skeletons decorativos ficam ocultos de leitores de tela; a funcionalidade
+anuncia seu carregamento. Preserve portais, foco e eventos da Base UI ao
+personalizar componentes compostos.
+
+O toaster é montado uma vez na composição global. Funcionalidades disparam
+notificações pelo Sonner, sem criar instâncias visuais por página.
+
+## Verificação
+
+Ao alterar uma primitiva, confira consumidores e variantes afetados, incluindo
+estados desabilitado, erro e foco quando aplicáveis. Verifique teclado,
+responsividade e propagação de props, evitando regressões em formulários e
+componentes que dependem dela.

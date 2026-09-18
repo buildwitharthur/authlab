@@ -45,9 +45,9 @@ export const createAccount: FastifyPluginAsyncZod = async (app) => {
         '/create-account',
         {
             schema: {
-                tags: ['Authentication'],
+                tags: ['Auth'],
                 description:
-                    'Cria uma nova conta, gera o hash da senha, atribui um número de membro sequencial e envia um e-mail de boas-vindas. Não autentica o chamador nem emite sessão.',
+                    'Registers a new account and sends a welcome email.',
                 body: createAccountBodySchema,
                 response: {
                     201: createAccountResponseSchema,
@@ -90,14 +90,12 @@ Espero que goste da experiência.
 AuthLab
 Built by Arthur Reis · ArthurLabs`;
 
-            const { error } = await sendEmail({
+            await sendEmail({
                 from: 'AuthLab <authlab@buildwitharthur.com.br>',
                 to: email,
                 subject: 'Bem-vindo ao AuthLab',
                 text: welcomeEmailText,
             });
-
-            if (error) console.error('Error sending email:', error);
 
             return reply.code(201).send(null);
         },

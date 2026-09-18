@@ -19,8 +19,7 @@ export const membersCount: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Members'],
-                description:
-                    'Retorna o total de contas cadastradas no AuthLab. Pública, usada na página de autenticação.',
+                description: 'Returns the total number of registered accounts. Public.',
                 response: {
                     200: membersCountResponseSchema,
                 },

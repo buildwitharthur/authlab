@@ -12,6 +12,7 @@ export const cookiePlugin = (app: FastifyInstance) => {
             sameSite: 'lax',
             secure: env.NODE_ENV === 'production',
             path: '/',
+            maxAge: 60 * 60 * 24 * 7,
         },
     });
 };

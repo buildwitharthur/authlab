@@ -42,9 +42,8 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
         '/sign-in',
         {
             schema: {
-                tags: ['Authentication'],
-                description:
-                    'Autentica um usuário com e-mail e senha e emite uma sessão via cookie httpOnly contendo um JWT.',
+                tags: ['Auth'],
+                description: 'Signs in with email and password, starting a session cookie.',
                 body: signInBodySchema,
                 response: {
                     200: signInResponseSchema,
@@ -57,25 +56,13 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
             const { email, password } = request.body;
 
             const user = await prisma.user.findUnique({ where: { email } });
-            const passwordMatches = user
-                ? await verify(user.passwordHash, password)
-                : false;
+            const passwordMatches = user ? await verify(user.passwordHash, password) : false;
 
-            if (!user || !passwordMatches)
-                throw new UnauthorizedError('Invalid email or password');
+            if (!user || !passwordMatches) throw new UnauthorizedError('Invalid email or password');
 
-            const token = await reply.jwtSign(
-                { sub: user.id },
-                { expiresIn: '7d' },
-            );
+            const token = await reply.jwtSign({ sub: user.id }, { expiresIn: '7d' });
 
-            reply.setCookie(SESSION_COOKIE_NAME, token, {
-                httpOnly: true,
-                sameSite: 'lax',
-                secure: env.NODE_ENV === 'production',
-                path: '/',
-                maxAge: 60 * 60 * 24 * 7,
-            });
+            reply.setCookie(SESSION_COOKIE_NAME, token);
 
             return reply.code(200).send(null);
         },

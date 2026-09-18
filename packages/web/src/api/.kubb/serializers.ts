@@ -1,20 +1,18 @@
-export type HeaderValue = string | number | boolean | null | undefined | object;
-export type HeadersInit =
-    Array<[string, HeaderValue]> | Record<string, HeaderValue>;
+export type HeaderValue = string | number | boolean | null | undefined | object
+export type HeadersInit = Array<[string, HeaderValue]> | Record<string, HeaderValue>
 
 /**
  * The request body type `fetch` accepts, derived from `RequestInit` instead of the global `BodyInit`
  * name, which a Node-only project (`@types/node` without the `dom` lib) does not declare.
  */
-export type RequestBody = NonNullable<RequestInit['body']>;
+export type RequestBody = NonNullable<RequestInit['body']>
 
 /**
  * The OpenAPI query-parameter serialization style. `form` is the default; `spaceDelimited` and
  * `pipeDelimited` join arrays with a space or pipe, and `deepObject` renders objects as
  * `key[prop]=value`.
  */
-export type QueryStyle =
-    'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
+export type QueryStyle = 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
 
 /**
  * The serialization metadata shared by the styled parameter locations: the OpenAPI `style` (typed per
@@ -22,33 +20,30 @@ export type QueryStyle =
  * unencoded, used by query and request bodies).
  */
 export type SerializationStyle<TStyle = string> = {
-    style?: TStyle;
-    explode?: boolean;
-    allowReserved?: boolean;
-};
+  style?: TStyle
+  explode?: boolean
+  allowReserved?: boolean
+}
 
 /**
  * The per-parameter query serialization metadata carried by the generated request.
  */
-export type QueryParamStyle = SerializationStyle<QueryStyle>;
+export type QueryParamStyle = SerializationStyle<QueryStyle>
 
 /**
  * Serializes the query object into a search string. The optional second argument carries the
  * per-parameter OpenAPI `style` / `explode` / `allowReserved` metadata; without it arrays explode
  * into repeated keys and nested objects use the `deepObject` style.
  */
-export type QuerySerializer = (
-    params: Record<string, unknown>,
-    options?: Record<string, QueryParamStyle>,
-) => string;
+export type QuerySerializer = (params: Record<string, unknown>, options?: Record<string, QueryParamStyle>) => string
 
 /**
  * The per-parameter cookie serialization metadata carried by the generated request. Cookies use the
  * OpenAPI `form` style, so only `explode` is configurable.
  */
 export type CookieParamStyle = {
-    explode?: boolean;
-};
+  explode?: boolean
+}
 
 /**
  * The per-parameter header serialization metadata carried by the generated request. Headers use the
@@ -61,8 +56,8 @@ export type CookieParamStyle = {
  * ```
  */
 export type HeaderParamStyle = {
-    explode?: boolean;
-};
+  explode?: boolean
+}
 
 /**
  * The per-property `encoding` metadata for an `application/x-www-form-urlencoded` or
@@ -70,52 +65,44 @@ export type HeaderParamStyle = {
  * `explode` / `allowReserved` follow the OpenAPI query rules for urlencoded bodies.
  */
 export type BodyEncoding = SerializationStyle<QueryStyle> & {
-    contentType?: string;
-};
+  contentType?: string
+}
 
 /**
  * Serializes the request body. JSON by default; `FormData`, `URLSearchParams`, `Blob`,
  * `ArrayBuffer`, and string bodies pass through untouched. The optional `encoding` argument carries
  * the per-property OpenAPI `encoding` metadata for form bodies.
  */
-export type BodySerializer = (args: {
-    body: unknown;
-    contentType?: string;
-    encoding?: Record<string, BodyEncoding>;
-}) => RequestBody | undefined;
+export type BodySerializer = (args: { body: unknown; contentType?: string; encoding?: Record<string, BodyEncoding> }) => RequestBody | undefined
 
 /**
  * The OpenAPI path-parameter serialization style. `simple` is the default and emits the bare value;
  * `label` prefixes a `.` and `matrix` prefixes a `;name=` segment.
  */
-export type PathStyle = 'simple' | 'label' | 'matrix';
+export type PathStyle = 'simple' | 'label' | 'matrix'
 
 /**
  * The per-parameter serialization metadata carried by the generated request. `style` selects the
  * OpenAPI style and `explode` controls how arrays and objects expand.
  */
-export type PathParamStyle = SerializationStyle<PathStyle>;
+export type PathParamStyle = SerializationStyle<PathStyle>
 
 /**
  * Serializes a single path parameter for interpolation into the URL, honoring the OpenAPI `style` /
  * `explode` passed as `options`. Defaults to `simple` style with `explode: false`: primitives are
  * URL-encoded, arrays join their members with commas, and objects flatten to `key,value` pairs.
  */
-export type PathSerializer = (args: {
-    name: string;
-    value: unknown;
-    options?: PathParamStyle;
-}) => string;
+export type PathSerializer = (args: { name: string; value: unknown; options?: PathParamStyle }) => string
 
 /**
  * The per-concern serializers, grouped so they can be set in one place and overridden per client or
  * per call. Each field falls back to the matching `default*Serializer` when omitted.
  */
 export type Serializers = {
-    query?: QuerySerializer;
-    body?: BodySerializer;
-    path?: PathSerializer;
-};
+  query?: QuerySerializer
+  body?: BodySerializer
+  path?: PathSerializer
+}
 
 /**
  * The per-parameter OpenAPI `style` / `explode` metadata a generated request carries, grouped by
@@ -123,26 +110,26 @@ export type Serializers = {
  * serializers; `body` carries the form `encoding` for a urlencoded or multipart body.
  */
 export type Styles = {
-    path?: Record<string, PathParamStyle>;
-    query?: Record<string, QueryParamStyle>;
-    header?: Record<string, HeaderParamStyle>;
-    cookie?: Record<string, CookieParamStyle>;
-    body?: Record<string, BodyEncoding>;
-};
+  path?: Record<string, PathParamStyle>
+  query?: Record<string, QueryParamStyle>
+  header?: Record<string, HeaderParamStyle>
+  cookie?: Record<string, CookieParamStyle>
+  body?: Record<string, BodyEncoding>
+}
 
 function isFormBody(body: unknown): body is RequestBody {
-    return (
-        body instanceof FormData ||
-        body instanceof URLSearchParams ||
-        body instanceof Blob ||
-        body instanceof ArrayBuffer ||
-        ArrayBuffer.isView(body) ||
-        typeof body === 'string'
-    );
+  return (
+    body instanceof FormData ||
+    body instanceof URLSearchParams ||
+    body instanceof Blob ||
+    body instanceof ArrayBuffer ||
+    ArrayBuffer.isView(body) ||
+    typeof body === 'string'
+  )
 }
 
 export function isDefaultJsonBody(body: unknown): boolean {
-    return body !== undefined && body !== null && !isFormBody(body);
+  return body !== undefined && body !== null && !isFormBody(body)
 }
 
 /**
@@ -150,35 +137,20 @@ export function isDefaultJsonBody(body: unknown): boolean {
  * Past the safe-integer range it throws, so an id never goes out silently truncated.
  */
 function jsonReplacer(_key: string, value: unknown): unknown {
-    if (typeof value !== 'bigint') return value;
-    if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
-        throw new TypeError(
-            `Cannot serialize ${value}n as JSON without losing precision, register a serializer.body to send it another way.`,
-        );
-    return Number(value);
+  if (typeof value !== 'bigint') return value
+  if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER)
+    throw new TypeError(`Cannot serialize ${value}n as JSON without losing precision, register a serializer.body to send it another way.`)
+  return Number(value)
 }
 
-function appendFormDataValue({
-    formData,
-    key,
-    value,
-    contentType,
-}: {
-    formData: FormData;
-    key: string;
-    value: unknown;
-    contentType?: string;
-}): void {
-    if (value === undefined || value === null) return;
-    if (value instanceof Blob) formData.append(key, value);
-    else if (typeof value === 'object' && !(value instanceof Date)) {
-        const json = JSON.stringify(value, jsonReplacer);
-        // A part's media type can only be set by wrapping the value in a typed Blob.
-        formData.append(
-            key,
-            contentType ? new Blob([json], { type: contentType }) : json,
-        );
-    } else formData.append(key, toValue(value));
+function appendFormDataValue({ formData, key, value, contentType }: { formData: FormData; key: string; value: unknown; contentType?: string }): void {
+  if (value === undefined || value === null) return
+  if (value instanceof Blob) formData.append(key, value)
+  else if (typeof value === 'object' && !(value instanceof Date)) {
+    const json = JSON.stringify(value, jsonReplacer)
+    // A part's media type can only be set by wrapping the value in a typed Blob.
+    formData.append(key, contentType ? new Blob([json], { type: contentType }) : json)
+  } else formData.append(key, toValue(value))
 }
 
 /**
@@ -195,102 +167,48 @@ function appendFormDataValue({
  * defaultBodySerializer({ body: { meta: { a: 1 } }, contentType: 'multipart/form-data', encoding: { meta: { contentType: 'application/json' } } }) // FormData with a typed Blob part
  * ```
  */
-export const defaultBodySerializer: BodySerializer = ({
-    body,
-    contentType,
-    encoding,
-}) => {
-    if (body === undefined || body === null) return undefined;
-    if (isFormBody(body)) return body as RequestBody;
-    if (contentType?.includes('multipart/form-data')) {
-        const formData = new FormData();
-        for (const [key, value] of Object.entries(
-            body as Record<string, unknown>,
-        )) {
-            const partContentType = encoding?.[key]?.contentType;
-            if (Array.isArray(value))
-                for (const item of value)
-                    appendFormDataValue({
-                        formData,
-                        key,
-                        value: item,
-                        contentType: partContentType,
-                    });
-            else
-                appendFormDataValue({
-                    formData,
-                    key,
-                    value,
-                    contentType: partContentType,
-                });
-        }
-        return formData;
+export const defaultBodySerializer: BodySerializer = ({ body, contentType, encoding }) => {
+  if (body === undefined || body === null) return undefined
+  if (isFormBody(body)) return body as RequestBody
+  if (contentType?.includes('multipart/form-data')) {
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+      const partContentType = encoding?.[key]?.contentType
+      if (Array.isArray(value)) for (const item of value) appendFormDataValue({ formData, key, value: item, contentType: partContentType })
+      else appendFormDataValue({ formData, key, value, contentType: partContentType })
     }
-    if (contentType?.includes('application/x-www-form-urlencoded')) {
-        if (encoding)
-            return serializeUrlencodedBody(
-                body as Record<string, unknown>,
-                encoding,
-            );
-        return new URLSearchParams(body as Record<string, string>);
-    }
-    return JSON.stringify(body, jsonReplacer);
-};
-
-function serializeUrlencodedBody(
-    body: Record<string, unknown>,
-    encoding: Record<string, BodyEncoding>,
-): string {
-    const parts: Array<string> = [];
-    for (const [key, value] of Object.entries(body)) {
-        const propertyEncoding = encoding[key];
-        parts.push(
-            ...(propertyEncoding
-                ? serializeStyledQueryParam({
-                      key,
-                      value,
-                      options: propertyEncoding,
-                  })
-                : serializeDefaultQueryParam(key, value)),
-        );
-    }
-    return parts.join('&');
+    return formData
+  }
+  if (contentType?.includes('application/x-www-form-urlencoded')) {
+    if (encoding) return serializeUrlencodedBody(body as Record<string, unknown>, encoding)
+    return new URLSearchParams(body as Record<string, string>)
+  }
+  return JSON.stringify(body, jsonReplacer)
 }
 
-function serializeCookie({
-    name,
-    value,
-    explode,
-}: {
-    name: string;
-    value: unknown;
-    explode: boolean;
-}): string {
-    if (Array.isArray(value)) {
-        const items = value
-            .filter(notNullish)
-            .map((item) => encodeURIComponent(toValue(item)));
-        return explode
-            ? items.map((item) => `${name}=${item}`).join('; ')
-            : `${name}=${items.join(',')}`;
-    }
-    if (isRecord(value)) {
-        const entries = Object.entries(value).filter(([, item]) =>
-            notNullish(item),
-        );
-        if (explode)
-            return entries
-                .map(
-                    ([key, item]) =>
-                        `${key}=${encodeURIComponent(toValue(item))}`,
-                )
-                .join('; ');
-        return `${name}=${entries
-            .flatMap(([key, item]) => [key, item])
-            .map((item) => encodeURIComponent(toValue(item)))
-            .join(',')}`;
-    }
-    return `${name}=${encodeURIComponent(toValue(value))}`;
+function serializeUrlencodedBody(body: Record<string, unknown>, encoding: Record<string, BodyEncoding>): string {
+  const parts: Array<string> = []
+  for (const [key, value] of Object.entries(body)) {
+    const propertyEncoding = encoding[key]
+    parts.push(...(propertyEncoding ? serializeStyledQueryParam({ key, value, options: propertyEncoding }) : serializeDefaultQueryParam(key, value)))
+  }
+  return parts.join('&')
+}
+
+function serializeCookie({ name, value, explode }: { name: string; value: unknown; explode: boolean }): string {
+  if (Array.isArray(value)) {
+    const items = value.filter(notNullish).map((item) => encodeURIComponent(toValue(item)))
+    return explode ? items.map((item) => `${name}=${item}`).join('; ') : `${name}=${items.join(',')}`
+  }
+  if (isRecord(value)) {
+    const entries = Object.entries(value).filter(([, item]) => notNullish(item))
+    if (explode) return entries.map(([key, item]) => `${key}=${encodeURIComponent(toValue(item))}`).join('; ')
+    return `${name}=${entries
+      .flatMap(([key, item]) => [key, item])
+      .map((item) => encodeURIComponent(toValue(item)))
+      .join(',')}`
+  }
+  return `${name}=${encodeURIComponent(toValue(value))}`
 }
 
 /**
@@ -303,61 +221,34 @@ function serializeCookie({
  * serializeCookies({ ids: [1, 2] }, { ids: { explode: true } }) // 'ids=1; ids=2'
  * ```
  */
-export function serializeCookies(
-    cookies: Record<string, unknown>,
-    styles?: Record<string, CookieParamStyle>,
-): string {
-    const parts: Array<string> = [];
-    for (const [name, value] of Object.entries(cookies)) {
-        if (value === undefined || value === null) continue;
-        parts.push(
-            serializeCookie({
-                name,
-                value,
-                explode: styles?.[name]?.explode ?? false,
-            }),
-        );
-    }
-    return parts.join('; ');
+export function serializeCookies(cookies: Record<string, unknown>, styles?: Record<string, CookieParamStyle>): string {
+  const parts: Array<string> = []
+  for (const [name, value] of Object.entries(cookies)) {
+    if (value === undefined || value === null) continue
+    parts.push(serializeCookie({ name, value, explode: styles?.[name]?.explode ?? false }))
+  }
+  return parts.join('; ')
 }
 
-function appendQueryValue({
-    search,
-    key,
-    value,
-}: {
-    search: URLSearchParams;
-    key: string;
-    value: unknown;
-}): void {
-    if (value === undefined || value === null) return;
-    if (Array.isArray(value)) {
-        for (const item of value)
-            appendQueryValue({ search, key, value: item });
-        return;
+function appendQueryValue({ search, key, value }: { search: URLSearchParams; key: string; value: unknown }): void {
+  if (value === undefined || value === null) return
+  if (Array.isArray(value)) {
+    for (const item of value) appendQueryValue({ search, key, value: item })
+    return
+  }
+  if (isRecord(value)) {
+    for (const [prop, propValue] of Object.entries(value)) {
+      appendQueryValue({ search, key: `${key}[${prop}]`, value: propValue })
     }
-    if (isRecord(value)) {
-        for (const [prop, propValue] of Object.entries(value)) {
-            appendQueryValue({
-                search,
-                key: `${key}[${prop}]`,
-                value: propValue,
-            });
-        }
-        return;
-    }
-    search.append(key, toValue(value));
+    return
+  }
+  search.append(key, toValue(value))
 }
 
-const queryDelimiters: Record<QueryStyle, string> = {
-    form: ',',
-    spaceDelimited: '%20',
-    pipeDelimited: '|',
-    deepObject: ',',
-};
+const queryDelimiters: Record<QueryStyle, string> = { form: ',', spaceDelimited: '%20', pipeDelimited: '|', deepObject: ',' }
 
 function notNullish(value: unknown): boolean {
-    return value !== undefined && value !== null;
+  return value !== undefined && value !== null
 }
 
 /**
@@ -365,21 +256,21 @@ function notNullish(value: unknown): boolean {
  * stable across path, query, cookie, and header locations rather than locale-dependent.
  */
 function toValue(value: unknown): string {
-    return value instanceof Date ? value.toISOString() : String(value);
+  return value instanceof Date ? value.toISOString() : String(value)
 }
 
 /**
  * Percent-encodes a value, keeping RFC 3986 reserved characters intact (used when `allowReserved` is set).
  */
 function encodeReserved(value: unknown): string {
-    return encodeURI(toValue(value));
+  return encodeURI(toValue(value))
 }
 
 /**
  * Percent-encodes a value, escaping reserved characters (the default query/path encoder).
  */
 function encodeComponent(value: unknown): string {
-    return encodeURIComponent(toValue(value));
+  return encodeURIComponent(toValue(value))
 }
 
 /**
@@ -387,121 +278,75 @@ function encodeComponent(value: unknown): string {
  * are serialized as a unit (a `Date` becomes an ISO string, not its enumerable own properties).
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
-    return (
-        typeof value === 'object' &&
-        value !== null &&
-        !Array.isArray(value) &&
-        !(value instanceof Date)
-    );
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)
 }
 
 /**
  * Expands an object or array into `deepObject` query parts, recursing into nested values so
  * `{ a: { b: { c: 1 } } }` becomes `a[b][c]=1`. Primitives terminate the recursion.
  */
-function serializeDeepObject({
-    key,
-    value,
-    encode,
-}: {
-    key: string;
-    value: unknown;
-    encode: (value: unknown) => string;
-}): Array<string> {
-    if (value === undefined || value === null) return [];
-    if (Array.isArray(value))
-        return value.flatMap((item, index) =>
-            serializeDeepObject({
-                key: `${key}[${index}]`,
-                value: item,
-                encode,
-            }),
-        );
-    if (isRecord(value)) {
-        return Object.entries(value)
-            .filter(([, item]) => notNullish(item))
-            .flatMap(([prop, item]) =>
-                serializeDeepObject({
-                    key: `${key}[${prop}]`,
-                    value: item,
-                    encode,
-                }),
-            );
-    }
-    return [`${encode(key)}=${encode(value)}`];
+function serializeDeepObject({ key, value, encode }: { key: string; value: unknown; encode: (value: unknown) => string }): Array<string> {
+  if (value === undefined || value === null) return []
+  if (Array.isArray(value)) return value.flatMap((item, index) => serializeDeepObject({ key: `${key}[${index}]`, value: item, encode }))
+  if (isRecord(value)) {
+    return Object.entries(value)
+      .filter(([, item]) => notNullish(item))
+      .flatMap(([prop, item]) => serializeDeepObject({ key: `${key}[${prop}]`, value: item, encode }))
+  }
+  return [`${encode(key)}=${encode(value)}`]
 }
 
 function serializeStyledQueryArray({
-    key,
-    value,
-    options,
-    encode,
+  key,
+  value,
+  options,
+  encode,
 }: {
-    key: string;
-    value: Array<unknown>;
-    options: QueryParamStyle;
-    encode: (value: unknown) => string;
+  key: string
+  value: Array<unknown>
+  options: QueryParamStyle
+  encode: (value: unknown) => string
 }): Array<string> {
-    const items = value.filter(notNullish);
-    if (options.explode ?? true)
-        return items.map((item) => `${encode(key)}=${encode(item)}`);
-    return [
-        `${encode(key)}=${items.map(encode).join(queryDelimiters[options.style ?? 'form'])}`,
-    ];
+  const items = value.filter(notNullish)
+  if (options.explode ?? true) return items.map((item) => `${encode(key)}=${encode(item)}`)
+  return [`${encode(key)}=${items.map(encode).join(queryDelimiters[options.style ?? 'form'])}`]
 }
 
 function serializeStyledQueryObject({
-    key,
-    value,
-    options,
-    encode,
+  key,
+  value,
+  options,
+  encode,
 }: {
-    key: string;
-    value: Record<string, unknown>;
-    options: QueryParamStyle;
-    encode: (value: unknown) => string;
+  key: string
+  value: Record<string, unknown>
+  options: QueryParamStyle
+  encode: (value: unknown) => string
 }): Array<string> {
-    if ((options.style ?? 'form') === 'deepObject')
-        return serializeDeepObject({ key, value, encode });
-    const entries = Object.entries(value).filter(([, item]) =>
-        notNullish(item),
-    );
-    if (options.explode ?? true)
-        return entries.map(([prop, item]) => `${encode(prop)}=${encode(item)}`);
-    return [
-        `${encode(key)}=${entries
-            .flatMap(([prop, item]) => [prop, item])
-            .map(encode)
-            .join(',')}`,
-    ];
+  if ((options.style ?? 'form') === 'deepObject') return serializeDeepObject({ key, value, encode })
+  const entries = Object.entries(value).filter(([, item]) => notNullish(item))
+  if (options.explode ?? true) return entries.map(([prop, item]) => `${encode(prop)}=${encode(item)}`)
+  return [
+    `${encode(key)}=${entries
+      .flatMap(([prop, item]) => [prop, item])
+      .map(encode)
+      .join(',')}`,
+  ]
 }
 
-function serializeStyledQueryParam({
-    key,
-    value,
-    options,
-}: {
-    key: string;
-    value: unknown;
-    options: QueryParamStyle;
-}): Array<string> {
-    if (value === undefined || value === null) return [];
-    const encode = options.allowReserved ? encodeReserved : encodeComponent;
-    if (Array.isArray(value))
-        return serializeStyledQueryArray({ key, value, options, encode });
-    if (isRecord(value))
-        return serializeStyledQueryObject({ key, value, options, encode });
-    return [`${encode(key)}=${encode(value)}`];
+function serializeStyledQueryParam({ key, value, options }: { key: string; value: unknown; options: QueryParamStyle }): Array<string> {
+  if (value === undefined || value === null) return []
+  const encode = options.allowReserved ? encodeReserved : encodeComponent
+  if (Array.isArray(value)) return serializeStyledQueryArray({ key, value, options, encode })
+  if (isRecord(value)) return serializeStyledQueryObject({ key, value, options, encode })
+  return [`${encode(key)}=${encode(value)}`]
 }
 
-function serializeDefaultQueryParam(
-    key: string,
-    value: unknown,
-): Array<string> {
-    const search = new URLSearchParams();
-    appendQueryValue({ search, key, value });
-    const result = search.toString();
-    return result ? [result] : [];
+function serializeDefaultQueryParam(key: string, value: unknown): Array<string> {
+  const search = new URLSearchParams()
+  appendQueryValue({ search, key, value })
+  const result = search.toString()
+  return result ? [result] : []
 }
 
 /**
@@ -520,79 +365,35 @@ function serializeDefaultQueryParam(
  * ```
  */
 export const defaultQuerySerializer: QuerySerializer = (params, options) => {
-    const parts: Array<string> = [];
-    for (const [key, value] of Object.entries(params)) {
-        const paramOptions = options?.[key];
-        parts.push(
-            ...(paramOptions
-                ? serializeStyledQueryParam({
-                      key,
-                      value,
-                      options: paramOptions,
-                  })
-                : serializeDefaultQueryParam(key, value)),
-        );
-    }
-    return parts.join('&');
-};
-
-function serializePathPrimitive({
-    name,
-    value,
-    style,
-}: {
-    name: string;
-    value: unknown;
-    style: PathStyle;
-}): string {
-    const encoded = encodeComponent(value);
-    if (style === 'label') return `.${encoded}`;
-    if (style === 'matrix') return `;${name}=${encoded}`;
-    return encoded;
+  const parts: Array<string> = []
+  for (const [key, value] of Object.entries(params)) {
+    const paramOptions = options?.[key]
+    parts.push(...(paramOptions ? serializeStyledQueryParam({ key, value, options: paramOptions }) : serializeDefaultQueryParam(key, value)))
+  }
+  return parts.join('&')
 }
 
-function serializePathArray({
-    name,
-    value,
-    style,
-    explode,
-}: {
-    name: string;
-    value: Array<unknown>;
-    style: PathStyle;
-    explode: boolean;
-}): string {
-    const items = value.map(encodeComponent);
-    if (style === 'label') return `.${items.join(explode ? '.' : ',')}`;
-    if (style === 'matrix')
-        return explode
-            ? items.map((item) => `;${name}=${item}`).join('')
-            : `;${name}=${items.join(',')}`;
-    return items.join(',');
+function serializePathPrimitive({ name, value, style }: { name: string; value: unknown; style: PathStyle }): string {
+  const encoded = encodeComponent(value)
+  if (style === 'label') return `.${encoded}`
+  if (style === 'matrix') return `;${name}=${encoded}`
+  return encoded
 }
 
-function serializePathObject({
-    name,
-    value,
-    style,
-    explode,
-}: {
-    name: string;
-    value: Record<string, unknown>;
-    style: PathStyle;
-    explode: boolean;
-}): string {
-    const members = Object.entries(value).map(([key, item]) =>
-        explode
-            ? `${encodeComponent(key)}=${encodeComponent(item)}`
-            : `${encodeComponent(key)},${encodeComponent(item)}`,
-    );
-    if (style === 'label') return `.${members.join(explode ? '.' : ',')}`;
-    if (style === 'matrix')
-        return explode
-            ? members.map((member) => `;${member}`).join('')
-            : `;${name}=${members.join(',')}`;
-    return members.join(',');
+function serializePathArray({ name, value, style, explode }: { name: string; value: Array<unknown>; style: PathStyle; explode: boolean }): string {
+  const items = value.map(encodeComponent)
+  if (style === 'label') return `.${items.join(explode ? '.' : ',')}`
+  if (style === 'matrix') return explode ? items.map((item) => `;${name}=${item}`).join('') : `;${name}=${items.join(',')}`
+  return items.join(',')
+}
+
+function serializePathObject({ name, value, style, explode }: { name: string; value: Record<string, unknown>; style: PathStyle; explode: boolean }): string {
+  const members = Object.entries(value).map(([key, item]) =>
+    explode ? `${encodeComponent(key)}=${encodeComponent(item)}` : `${encodeComponent(key)},${encodeComponent(item)}`,
+  )
+  if (style === 'label') return `.${members.join(explode ? '.' : ',')}`
+  if (style === 'matrix') return explode ? members.map((member) => `;${member}`).join('') : `;${name}=${members.join(',')}`
+  return members.join(',')
 }
 
 /**
@@ -608,36 +409,24 @@ function serializePathObject({
  * defaultPathSerializer({ name: 'pt', value: { x: 1, y: 2 } }) // 'x,1,y,2'
  * ```
  */
-export const defaultPathSerializer: PathSerializer = ({
-    name,
-    value,
-    options,
-}) => {
-    if (value === undefined || value === null) return '';
-    const style = options?.style ?? 'simple';
-    const explode = options?.explode ?? false;
-    if (Array.isArray(value))
-        return serializePathArray({ name, value, style, explode });
-    if (isRecord(value))
-        return serializePathObject({ name, value, style, explode });
-    return serializePathPrimitive({ name, value, style });
-};
+export const defaultPathSerializer: PathSerializer = ({ name, value, options }) => {
+  if (value === undefined || value === null) return ''
+  const style = options?.style ?? 'simple'
+  const explode = options?.explode ?? false
+  if (Array.isArray(value)) return serializePathArray({ name, value, style, explode })
+  if (isRecord(value)) return serializePathObject({ name, value, style, explode })
+  return serializePathPrimitive({ name, value, style })
+}
 
 function serializeHeaderValue(value: unknown, explode: boolean): string {
-    if (Array.isArray(value))
-        return value.filter(notNullish).map(toValue).join(',');
-    if (!isRecord(value)) return toValue(value);
-    const entries = Object.entries(value).filter(([, item]) =>
-        notNullish(item),
-    );
-    if (explode)
-        return entries
-            .map(([key, item]) => `${key}=${toValue(item)}`)
-            .join(',');
-    return entries
-        .flatMap(([key, item]) => [key, item])
-        .map(toValue)
-        .join(',');
+  if (Array.isArray(value)) return value.filter(notNullish).map(toValue).join(',')
+  if (!isRecord(value)) return toValue(value)
+  const entries = Object.entries(value).filter(([, item]) => notNullish(item))
+  if (explode) return entries.map(([key, item]) => `${key}=${toValue(item)}`).join(',')
+  return entries
+    .flatMap(([key, item]) => [key, item])
+    .map(toValue)
+    .join(',')
 }
 
 /**
@@ -645,24 +434,12 @@ function serializeHeaderValue(value: unknown, explode: boolean): string {
  * merged. Header values are not URL-encoded. Primitive values and headers without metadata pass
  * through untouched.
  */
-export function applyHeaderStyles(
-    headers: HeadersInit | undefined,
-    styles: Record<string, HeaderParamStyle> | undefined,
-): HeadersInit | undefined {
-    if (!headers || !styles) return headers;
-    const entries = Array.isArray(headers) ? headers : Object.entries(headers);
-    return entries.map(([key, value]) => {
-        const style = styles[key];
-        if (
-            !style ||
-            value === undefined ||
-            value === null ||
-            typeof value !== 'object'
-        )
-            return [key, value] as [string, HeaderValue];
-        return [key, serializeHeaderValue(value, style.explode ?? false)] as [
-            string,
-            HeaderValue,
-        ];
-    });
+export function applyHeaderStyles(headers: HeadersInit | undefined, styles: Record<string, HeaderParamStyle> | undefined): HeadersInit | undefined {
+  if (!headers || !styles) return headers
+  const entries = Array.isArray(headers) ? headers : Object.entries(headers)
+  return entries.map(([key, value]) => {
+    const style = styles[key]
+    if (!style || value === undefined || value === null || typeof value !== 'object') return [key, value] as [string, HeaderValue]
+    return [key, serializeHeaderValue(value, style.explode ?? false)] as [string, HeaderValue]
+  })
 }

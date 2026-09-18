@@ -1,33 +1,35 @@
-# Base TypeScript para pacotes de servidor
+# Padrões de configuração TypeScript
 
-## Quando usar
+## Escopo
 
-`@authlab/ts-config` compartilha as decisões de compilação dos pacotes Node.js. API, banco, e-mail e
-ambiente o usam como dependência de desenvolvimento e estendem sua configuração pública.
-Ele não fornece código de runtime nem uma biblioteca de utilitários.
+`@authlab/ts-config` compartilha decisões de compilação dos pacotes Node.js como
+dependência de desenvolvimento. Consumidores estendem a configuração pública e
+mantêm opções particulares em sua extensão local.
 
-O web mantém configuração própria para React, DOM e resolução por bundler. Não imponha a base de
-servidor ao navegador para eliminar diferenças que refletem runtimes distintos.
+Esta base não fornece código de runtime. O web tem configuração própria para
+React, DOM e bundler; preserve as diferenças exigidas por cada ambiente.
 
 ## Convenções compartilhadas
 
-- Tipagem estrita e interoperabilidade com dependências existentes.
-- Alvo ES2024, bibliotecas JavaScript modernas e tipos de Node.
-- Módulos e resolução orientados ao ecossistema Node, cuja compatibilidade deve ser preservada ao
-  alterar opções de compilação.
-- Diretório de fontes e saída compilada relativos ao pacote consumidor, usando `${configDir}`.
-- Alias `@/*` para o escopo de fontes de cada consumidor, sem cruzar fronteiras entre pacotes.
+- Mantenha tipagem estrita e interoperabilidade com as dependências usadas.
+- Preserve compatibilidade entre alvo JavaScript, bibliotecas, tipos de Node e
+  versão de runtime exigida pelo workspace.
+- Configure módulos ESM e resolução compatíveis com a execução em Node.
+- Resolva fontes e saída compilada a partir de cada consumidor com
+  `${configDir}`, evitando caminhos fixos para um pacote.
+- Restrinja aliases ao escopo local; imports entre pacotes usam exports públicos.
+- Mantenha tipos e opções específicos do navegador fora da base de servidor.
 
-Um alias de TypeScript auxilia a resolução durante análise; ele não reescreve automaticamente os
-imports emitidos. Ao mudar aliases ou resolução, verifique também como o runtime executa o resultado.
+Aliases auxiliam a análise de tipos e não reescrevem automaticamente imports
+emitidos. Extensões de import, exports e resolução precisam funcionar também
+na execução do JavaScript.
 
-## Como evoluir
+## Evolução e verificação
 
-Coloque aqui somente opções realmente compartilhadas pelos consumidores Node. Opções particulares
-de um pacote devem permanecer na extensão local. Mantenha dependências específicas de React e Vite
-fora desta base.
+Acrescente uma opção à base somente quando ela expressar uma decisão realmente
+compartilhada. Considere seu efeito em todos os consumidores e a compatibilidade
+com a versão de TypeScript do workspace.
 
-Toda alteração pode afetar API, banco, e-mail e ambiente ao mesmo tempo. Execute suas verificações
-de tipos e builds, considerando a versão de TypeScript usada por cada consumidor. Não conclua que
-a aplicação inicia apenas porque a análise de tipos passou; resolução e execução também precisam
-continuar compatíveis.
+Ao alterar a base, execute verificações de tipos e builds dos consumidores.
+Quando a mudança afetar módulos, aliases ou emissão, confira também a execução:
+compilar sem erros não garante que o runtime resolva os imports.

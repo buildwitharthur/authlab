@@ -13,9 +13,9 @@ export function AppHeader() {
                 <img
                     src="/arthur-labs-logo.png"
                     alt=""
-                    width={28}
-                    height={28}
-                    className="size-7 object-contain"
+                    width={40}
+                    height={40}
+                    className="object-contain"
                 />
                 <span className="font-display text-[17px] font-semibold tracking-[-0.04em]">
                     Auth<Accent className="font-medium">Lab</Accent>

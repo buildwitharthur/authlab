@@ -1,32 +1,55 @@
-# Infraestrutura transversal do servidor
+# Padrões de infraestrutura do servidor
 
-## Quando criar um plugin
+## Responsabilidade e composição
 
-Use esta camada para configurar capacidades compartilhadas do Fastify: tratamento de erros,
-políticas HTTP, autenticação, cookies, documentação e limites de uso. Regras específicas de cadastro,
-membros ou envio de boas-vindas pertencem à operação de negócio.
+Use plugins para capacidades transversais: erros, políticas HTTP, autenticação,
+cookies, documentação e limites de uso. Regras específicas de uma operação
+pertencem ao seu handler ou serviço de aplicação.
 
-O padrão atual exporta funções que recebem `FastifyInstance` e configuram a instância ou registram
-uma integração com `app.register`. Essas funções são chamadas na composição do servidor antes das
-rotas. Preserve a ordem das dependências; Swagger precisa ser registrado antes dos endpoints que
-documenta. Considere o encapsulamento do Fastify ao mudar o escopo de hooks ou decorators.
+Integrações recebem a instância Fastify e configuram ou registram a capacidade.
+Use `fastify-plugin` quando decorators precisarem ser compartilhados fora do
+encapsulamento padrão. Declare seus tipos por module augmentation quando necessário.
 
-## Políticas atuais
+Respeite a ordem das dependências: parsing de cookies e JWT antes do uso da
+verificação de sessão, documentação antes das rotas que ela descreve. Disponibilize
+a infraestrutura no escopo em que os consumidores serão registrados.
 
-- O tratamento de erros é centralizado e distingue validação, erro de aplicação e falha inesperada.
-- CORS aceita a origem recebida e permite credenciais. Ao mudar a política de origem, coordene-a com
-  o endereço do web e o envio de credenciais pelo cliente HTTP.
-- A limitação é global, com até 100 requisições por minuto, e usa o erro de aplicação de excesso de
-  requisições. Exceções devem ser explícitas na configuração da operação.
-- A integração de cookies recebe opções de `httpOnly`, `sameSite: 'lax'`, caminho raiz e `secure`
-  condicionado à produção. Ao emitir cookies de sessão, confira as opções efetivas de escrita;
-  configurar o parser não implementa a emissão nem a política completa da sessão.
-- JWT usa o segredo validado por `@authlab/env`. Registrar o plugin não aplica verificação de token
-  a todos os endpoints.
-- Swagger transforma os schemas Zod em OpenAPI; Scalar apresenta esse contrato ao desenvolvedor.
+## Sessão e políticas HTTP
 
-## Evolução das integrações
+Centralize o nome do cookie e use a mesma referência na configuração JWT, emissão,
+remoção e documentação OpenAPI. Preserve `httpOnly`, `sameSite`, caminho e
+`secure` condicionado ao ambiente. Mantenha a duração do cookie coerente com a
+expiração do token e a remoção compatível com o escopo usado na emissão.
 
-Leia configuração por `@authlab/env`, sem espalhar acessos a `process.env`. Mantenha a tradução de
-erros consistente com o handler central. Ao alterar cookies, CORS ou autenticação, verifique a
-operação completa no navegador e no servidor: a configuração de apenas um lado não estabelece sessão.
+O JWT usa o segredo validado por `@authlab/env`. A assinatura do token e a
+assinatura opcional do cookie são mecanismos distintos; não presuma que configurar
+um segredo de cookie ativa ambos.
+
+O decorator `verifyAuth` valida o token, confirma a existência do usuário e
+disponibiliza sua identidade na requisição. Converta token inválido ou usuário
+ausente em `UnauthorizedError`. Falhas de infraestrutura continuam sendo erros
+inesperados, em vez de serem mascaradas como credenciais inválidas.
+
+Não aplique autenticação implicitamente a toda operação. Cada rota protegida
+aciona o guard; regras de autorização de negócio permanecem na operação.
+
+Coordene origens CORS e credenciais com o cliente HTTP do web. Preserve a
+limitação global de requisições e faça exceções explicitamente, mantendo o
+formato público de erro. Configuração de CORS não substitui autorização.
+
+## Erros e documentação
+
+Mantenha um handler central para validação, `AppError` e falhas inesperadas.
+Use o logger da requisição para diagnóstico e respostas genéricas para erros
+internos, sem expor tokens, senhas ou detalhes de infraestrutura.
+
+Swagger transforma schemas Zod em OpenAPI e declara os mecanismos de segurança.
+A referência interativa consome esse mesmo contrato. Não mantenha uma definição
+manual paralela de entradas e respostas.
+
+## Verificação
+
+Leia configuração por `@authlab/env`. Ao alterar hooks, decorators ou registro,
+confira disponibilidade e isolamento no escopo consumidor. Para mudanças em
+autenticação, cookies ou CORS, verifique o fluxo completo entre navegador e API,
+incluindo sessão ausente, inválida, expirada e encerrada.

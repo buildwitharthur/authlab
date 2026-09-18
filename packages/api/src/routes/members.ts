@@ -41,12 +41,12 @@ export const members: FastifyPluginAsyncZod = async (app) => {
         {
             schema: {
                 tags: ['Members'],
-                description:
-                    'Lista os membros que optaram por aparecer no mural, ordenados pela numeração de associação. Requer sessão autenticada.',
+                description: 'Lists members who opted into the wall, ordered by member number.',
                 response: {
                     200: listMembersResponseSchema,
                     401: errorResponseSchema,
                 },
+                security: [{ cookieAuth: [] }],
                 operationId: 'listMembers',
             },
             preHandler: [async (request) => await request.verifyAuth()],

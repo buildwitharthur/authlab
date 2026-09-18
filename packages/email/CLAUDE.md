@@ -1,32 +1,46 @@
-# Envio de e-mails
+# Padrões de envio de e-mails
 
-## Responsabilidade e fronteiras
+## Responsabilidade e contrato
 
-Este pacote concentra a integração com Resend. O servidor deve usá-lo quando uma operação precisar
-enviar e-mail, sem criar clientes do provedor em handlers ou compartilhar a chave com o navegador.
+Concentre o acesso ao Resend neste pacote. Consumidores de servidor usam
+`@authlab/email`, sem criar clientes do provedor em handlers nem expor a chave
+ao navegador.
 
-A interface pública oferece `sendEmail` e o tipo `SendEmailOptions`. As opções correspondem às
-opções de criação de e-mail do Resend, e o retorno é o resultado do provedor. A abstração atual é
-deliberadamente pequena: não existe formato independente do fornecedor, fila, sistema de templates
-ou política automática de tentativas.
+A interface pública oferece `sendEmail` e `SendEmailOptions`. As opções e o
+resultado seguem o contrato do provedor; não presuma uma abstração independente,
+uma fila ou tentativas automáticas.
 
-## Como consumir
+A configuração vem de `@authlab/env`, e o cliente é criado na importação.
+Configure as credenciais antes de carregar a integração. O chamador fornece
+remetente, destinatário e conteúdo; o pacote não busca usuários nem aplica um
+remetente automaticamente.
 
-- Declare `@authlab/email` como dependência de workspace do pacote consumidor.
-- Configure `RESEND_API_KEY` no ambiente de servidor. Ela é validada por `@authlab/env`, e o cliente
-  do provedor é criado quando o módulo é importado.
-- Forneça remetente, destinatário e conteúdo nas opções da chamada; o pacote não adiciona um
-  remetente padrão nem busca usuários no banco.
-- Inspecione o resultado, incluindo o erro retornado pelo provedor, além de tratar possíveis
-  exceções. A função não converte automaticamente falhas em `AppError`.
+## Coordenação e falhas
 
-O chamador decide quando enviar e como uma falha afeta a operação de negócio. Não trate envio externo
-como parte atômica de uma transação PostgreSQL. Caso um fluxo precise de garantias de entrega ou
-retentativas, implemente essa política explicitamente antes de depender dela.
+A API decide quando enviar e como o resultado afeta a operação de negócio.
+Inspecione tanto erros retornados pelo provedor quanto exceções: uma Promise
+resolvida não comprova envio bem-sucedido, e aceitação pelo provedor não comprova
+entrega ao destinatário.
 
-## Estado da integração
+Defina explicitamente se uma falha de envio impede a resposta de sucesso ou é
+tratada como efeito secundário. Não afirme que uma falha foi registrada, ignorada
+ou compensada sem implementar esse tratamento.
 
-A API consome este pacote no cadastro para enviar a mensagem de boas-vindas depois de persistir o
-usuário. O handler inspeciona o erro retornado pelo provedor e o registra, mas mantém o cadastro
-concluído; portanto, o fluxo atual oferece tentativa de envio, não garantia de entrega. Mantenha a
-decisão de negócio na API e o acesso ao provedor neste pacote.
+Persistência e envio externo não formam uma transação atômica. Considere o que
+já foi persistido antes de propagar uma falha ou repetir a operação. Se houver
+necessidade de garantia de entrega ou novas tentativas, implemente a política
+e o controle de duplicidade correspondentes.
+
+Mantenha mensagens HTTP e tradução para erros de aplicação na API. Registros de
+diagnóstico devem ser suficientes para identificar falhas sem expor credenciais
+ou conteúdo privado desnecessário.
+
+## Evolução e verificação
+
+Reutilize o cliente compartilhado e mantenha a integração pequena. Extraia
+composição de mensagens quando houver reuso concreto, sem misturar acesso ao
+banco com transporte de e-mail.
+
+Ao alterar o envio, confira opções fornecidas, resultado de sucesso, erro
+retornado e exceção. Verifique também a consequência para o caso de uso que
+disparou a mensagem.

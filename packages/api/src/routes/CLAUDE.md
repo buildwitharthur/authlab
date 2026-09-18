@@ -1,60 +1,57 @@
-# Padrão de criação de endpoints
+# Padrões de endpoints
 
-## Unidade de implementação
+## Registro e schemas
 
-Exporte uma função assíncrona tipada como `FastifyPluginAsyncZod` para registrar a operação e inclua-a
-na composição da API com `app.register`. Use nomes de operação em inglês e camelCase, coerentes com
-o `operationId` público.
+Exporte um plugin assíncrono tipado como `FastifyPluginAsyncZod` e registre-o
+na composição da API. Use nomes em inglês e camelCase, coerentes com a operação
+pública, e preserve o `operationId` usado pela geração do consumidor.
 
-Declare os schemas públicos como constantes nomeadas no módulo, antes do plugin, e referencie-os no
-registro do método HTTP. Use o nome da operação como prefixo, por exemplo
-`createAccountBodySchema` e `createAccountResponseSchema`; um schema de erro pode ter nome comum
-quando o mesmo formato é usado por mais de um status. Isso mantém o contrato legível sem afastá-lo
-do handler que o implementa.
+Declare schemas como constantes nomeadas junto ao contrato da operação.
+Use nomes que expressem operação e finalidade, como corpo, resposta ou erro.
+Reutilize um schema quando formato e significado forem os mesmos.
 
-No schema da operação, defina:
+Cada operação declara:
 
-- `tags` para agrupar o domínio da operação na documentação;
-- uma descrição que explique comportamento e condições relevantes;
-- `operationId` único e estável, pois ele orienta os símbolos gerados no web;
-- schemas Zod de `body`, `params` e `querystring` quando a operação aceitar esses dados;
-- schemas de `response` por status, incluindo sucesso e falhas públicas esperadas;
-- `.meta({ example: ... })` nos schemas públicos com corpo estruturado, com exemplos completos e
-  realistas que possam ser exibidos na documentação OpenAPI.
+- `tags`, descrição do comportamento e `operationId` único;
+- schemas de `body`, `params` e `querystring` para as entradas aceitas;
+- schemas de `response` por status de sucesso e falhas públicas esperadas;
+- `security: [{ cookieAuth: [] }]` quando exigir sessão;
+- exemplos `.meta({ example: ... })` nos corpos estruturados públicos.
 
-O valor de `example` deve respeitar exatamente o schema ao qual está associado. Use dados fictícios,
-mas plausíveis, sem segredos ou dados pessoais reais. Para um corpo `{ name: string }`, por exemplo,
-use `.meta({ example: { name: 'Arthur Reis' } })` em vez de um objeto vazio. Documente também um
-exemplo representativo para cada resposta pública cujo formato seja diferente.
+Exemplos devem ser fictícios, completos e compatíveis com o JSON transportado,
+incluindo datas serializadas e códigos de erro. Não inclua segredos ou dados
+pessoais reais. Preserve o formato de sucesso de cada operação; não acrescente
+um envelope genérico sem necessidade do contrato.
 
-Respostas deliberadamente sem conteúdo podem usar `z.null()` e devem enviar `null`; não invente um
-objeto apenas para fornecer exemplo. Mantenha descrição, schemas e status coerentes com o
-comportamento real da operação.
+Quando o corpo contratado for `null`, use `z.null()` e envie `null` com o
+status declarado. Não trate JSON `null` e ausência de corpo como equivalentes.
 
-## Padrão do handler
+## Autenticação e handler
 
-1. Leia as entradas tipadas a partir da requisição validada pelo Fastify.
-2. Verifique autenticação e autorização quando a operação exigir acesso protegido.
-3. Execute a operação de negócio usando as interfaces públicas dos pacotes de infraestrutura.
-4. Lance um erro de aplicação para condições de negócio esperadas.
-5. Envie o status e um corpo que correspondam ao schema de resposta.
+Operações protegidas chamam `request.verifyAuth()` em `preHandler` antes
+do handler e documentam 401. A declaração de segurança no schema apenas descreve
+o contrato; ela não valida a sessão.
 
-Não use coerções de tipo para contornar entradas não validadas. Não devolva automaticamente o modelo
-completo do banco: selecione os campos públicos definidos no contrato. A rota decide o status HTTP;
-o banco e o provedor de e-mail não devem assumir essa responsabilidade.
+1. Leia entradas validadas e a identidade autenticada, quando aplicável.
+2. Aplique autorização e filtros de visibilidade da operação.
+3. Coordene persistência e efeitos externos pelas interfaces públicas dos pacotes.
+4. Lance erros de aplicação para falhas de negócio esperadas.
+5. Envie o status e os campos públicos definidos no schema.
 
-O projeto não impõe atualmente um envelope único para respostas de sucesso. Preserve o contrato de
-cada operação; por exemplo, o cadastro responde `201` com `null`. Os erros tratados centralmente
-seguem `{ error, message, statusCode }` e as falhas de negócio esperadas devem referenciar esse
-formato no mapa de respostas.
+Não use coerções de tipo para contornar validação. Não devolva automaticamente
+o modelo completo do banco nem exponha hashes. Consultas de listagem devem
+explicitar filtros, projeção pública e ordenação quando fizerem parte do contrato.
+Contagens precisam refletir seu universo de dados, sem confundir total de contas
+com quantidade de membros visíveis.
 
-## Evolução do contrato
+## Erros e evolução
 
-Mudar o `operationId` pode renomear clientes, hooks e tipos do web mesmo que a URL não mude. Mudar
-campos ou status exige ajustar schemas e consumidores juntos. Após registrar ou alterar uma rota,
-publique o OpenAPI atualizado e execute a geração Kubb no pacote web.
+Os erros centralizados seguem `{ error, message, statusCode }`. Mantenha código,
+mensagem, status e exemplos coerentes. Use tratamento local apenas para traduzir
+uma falha conhecida ou decidir o efeito de uma integração; deixe o fallback
+inesperado para o handler central.
 
-A rota de cadastro exemplifica o padrão atual: schemas nomeados de entrada, sucesso e erro ficam no
-mesmo módulo; o contrato aceita `name`, `email`, `password` e `showOnWall`; e o handler converte esses
-dados para o modelo persistido sem expor `passwordHash`. O cliente do web deve continuar sendo
-regenerado a partir do OpenAPI sempre que esse contrato mudar.
+Mudanças em `operationId`, campos, status ou segurança afetam consumidores mesmo
+quando a URL é preservada. Atualize o OpenAPI e regenere o consumo Kubb após mudar
+o contrato. Confira a representação serializada das respostas, especialmente
+datas, além dos tipos usados dentro do handler.

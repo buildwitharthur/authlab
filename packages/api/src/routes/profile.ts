@@ -44,13 +44,13 @@ export const profile: FastifyPluginAsyncZod = async (app) => {
         '/profile',
         {
             schema: {
-                tags: ['Authentication'],
-                description:
-                    'Retorna os dados do usuário autenticado a partir da sessão do cookie.',
+                tags: ['Members'],
+                description: 'Returns the signed-in user\'s profile.',
                 response: {
                     200: profileResponseSchema,
                     401: errorResponseSchema,
                 },
+                security: [{ cookieAuth: [] }],
                 operationId: 'profile',
             },
             preHandler: [async (request) => await request.verifyAuth()],

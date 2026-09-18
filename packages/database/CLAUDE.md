@@ -1,47 +1,47 @@
-# Persistência com Prisma e PostgreSQL
+# Padrões de persistência
 
-## Responsabilidade e uso
+## Responsabilidade e acesso
 
-Este pacote é responsável pelo modelo persistido, histórico de migrações, geração de tipos e
-instância compartilhada do Prisma. Use-o somente no servidor e importe sua interface pública por
-`@authlab/database`. Não leve o cliente Prisma nem seus modelos internos para o navegador.
+Este pacote concentra modelo Prisma, migrações, geração de tipos e acesso ao
+PostgreSQL. Consuma sua interface pública por `@authlab/database` somente no
+servidor. Modelos e cliente Prisma não são contratos do navegador.
 
-Use a instância exportada `prisma` nas operações normais. O pacote também exporta `Prisma`,
-`PrismaClient` e tipos de modelos, mas isso não é motivo para abrir uma nova conexão por requisição.
-O adapter PostgreSQL recebe a conexão de `@authlab/env`, e a instância é reaproveitada em `globalThis`
-fora de produção para evitar multiplicação de clientes durante recargas de desenvolvimento.
+Use a instância compartilhada `prisma`; não crie um cliente por requisição.
+Preserve o reaproveitamento em desenvolvimento para evitar conexões duplicadas
+durante recargas. A configuração de conexão vem de `@authlab/env`.
 
-Regras HTTP, autenticação e decisão de enviar e-mails pertencem à API. Este pacote não deve depender
-de Fastify, React ou do provedor de e-mail. Use transações quando várias escritas precisarem constituir
-uma única operação atômica; a coordenação do caso de uso permanece no servidor.
+Decisões HTTP, autenticação e envio de e-mails pertencem à API. Mantenha este
+pacote independente de Fastify, React e provedores de mensagem.
 
-## Modelo e fronteiras de dados
+## Modelo e integridade
 
-O modelo atual de usuário contém identificador UUID, nome, e-mail único, hash da senha, número de
-membro, data de entrada e a escolha de aparecer no mural. O identificador, o número sequencial, a
-data e a visibilidade têm defaults definidos no modelo. A API recebe `password` e `showOnWall`, mas
-persiste `passwordHash` e `showWall`; mantenha essa conversão explícita e nunca exponha o hash.
+Expresse identidade, unicidade, valores padrão e relações no modelo persistido.
+Gere identificadores, numeração de negócio e datas de criação na persistência,
+sem delegar sua autoridade ao navegador. Uma sequência não garante numeração
+sem lacunas e não deve ser usada como contagem de registros.
 
-Ainda não existe modelo de sessão. Não suponha equivalência entre modelo Prisma, resposta HTTP e
-tipo visual: defina a conversão e os campos públicos no contrato da API.
+Persista hashes de senha, nunca senhas em texto puro. Mantenha explícita a
+conversão entre entrada pública e modelo persistido, incluindo preferências de
+visibilidade. A API seleciona os campos públicos de cada consulta e resposta.
 
-## Como evoluir a persistência
+Consultas prévias não substituem restrições de integridade: considere concorrência
+ao criar ou alterar dados únicos. Use transações quando várias escritas precisarem
+ser atômicas. Chamadas externas não participam da transação PostgreSQL.
 
-1. Altere o modelo declarativo de acordo com a operação de negócio.
-2. Execute `pnpm --filter @authlab/database db:migrate` contra o banco de desenvolvimento e revise
-   a migração produzida, incluindo efeitos sobre dados existentes.
-3. Execute `pnpm --filter @authlab/database db:generate` para atualizar o cliente e os tipos usados
-   pelos consumidores. Não dependa de geração implícita durante a migração.
-4. Ajuste as operações consumidoras e confira tipos e comportamento persistido.
+## Evolução e migrações
 
-Versione a evolução do modelo e suas migrações. Não reescreva uma migração já aplicada a ambientes
-compartilhados; crie a próxima alteração. Não edite o Prisma Client gerado, que não é versionado.
+1. Altere o modelo declarativo de acordo com a regra de negócio.
+2. Execute `pnpm --filter @authlab/database db:migrate` em desenvolvimento.
+3. Revise a migração, considerando dados existentes, defaults, unicidade e
+   preenchimento de novos campos obrigatórios.
+4. Execute `pnpm --filter @authlab/database db:generate`.
+5. Ajuste consumidores e verifique tipos e comportamento persistido.
 
-## Execução
+Versione modelo e migrações. Não reescreva migrações já aplicadas em ambientes
+compartilhados nem edite o Prisma Client gerado. Use
+`pnpm --filter @authlab/database db:deploy` para aplicar migrações existentes
+na implantação.
 
-Os comandos de banco carregam o ambiente da raiz. Configure `DATABASE_URL` para o banco pretendido;
-a variável ser opcional na validação geral não torna a conexão opcional para operações persistidas.
-
-Use `db:migrate` em desenvolvimento e `db:deploy` para aplicar migrações existentes em implantação,
-sempre com `pnpm --filter @authlab/database`. `db:studio` abre a inspeção local dos dados. A geração
-do cliente não aplica migrações, e a aplicação de migrações não substitui a geração do cliente.
+Geração de cliente e aplicação de migrações são etapas distintas. Configure a
+conexão do ambiente pretendido antes de executar comandos: uma URL opcional na
+validação geral não torna o banco opcional para operações persistidas.

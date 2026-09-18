@@ -1,41 +1,46 @@
-# Configuração validada de servidor
+# Padrões de configuração de ambiente
 
-## Responsabilidade
+## Responsabilidade e fronteiras
 
-Este pacote é o ponto de leitura e validação das variáveis de ambiente do servidor, usando
-`@t3-oss/env-core` e Zod. Os consumidores importam `env` por `@authlab/env`, em vez de ler
-`process.env` e repetir defaults ou conversões em cada integração.
+Centralize a leitura e a validação da configuração de servidor com
+`@t3-oss/env-core` e Zod. Consumidores importam `env` por `@authlab/env`;
+não espalhe acessos a `process.env`, defaults e conversões entre integrações.
 
-A validação acontece na importação. O ambiente precisa estar carregado antes disso. O pacote lê
-o ambiente do processo; quem carrega a configuração local são os comandos de execução dos
-consumidores. Não importe este pacote no web: o contrato atual é exclusivamente de servidor.
+A validação acontece na importação. Carregue o ambiente antes de importar
+consumidores; este pacote lê o processo, enquanto os comandos de execução
+carregam a configuração local.
 
-## Contrato atual
+Mantenha este contrato exclusivo do servidor e sem dependências de negócio.
+Configuração pública do navegador exige um contrato separado, contendo apenas
+valores que possam ser expostos ao usuário.
 
-| Variável         | Regra                                                       | Uso                                   |
-| ---------------- | ----------------------------------------------------------- | ------------------------------------- |
-| `NODE_ENV`       | `development`, `production` ou `test`; padrão `development` | Comportamentos por ambiente           |
-| `HOST`           | Texto não vazio; padrão `0.0.0.0`                           | Endereço de escuta da API             |
-| `PORT`           | Conversão para inteiro de 1 a 65535; padrão 8080            | Porta da API                          |
-| `DATABASE_URL`   | URL opcional                                                | Conexão PostgreSQL                    |
-| `JWT_SECRET`     | Texto não vazio, com default de desenvolvimento             | Assinatura JWT                        |
-| `COOKIE_SECRET`  | Texto não vazio, opcional                                   | Configuração de assinatura de cookies |
-| `RESEND_API_KEY` | Texto não vazio, opcional                                   | Acesso ao provedor de e-mail          |
-| `EMAIL_FROM`     | Texto não vazio; remetente padrão de desenvolvimento        | Identidade de envio da aplicação      |
+## Validação e defaults
 
-Strings vazias são tratadas como ausência. Uma variável opcional permite a validação do ambiente sem
-aquele serviço configurado, mas não garante que a integração funcione sem ela. Configure os valores
-necessários antes de importar ou usar a integração correspondente. O default de JWT é destinado ao
-desenvolvimento; ambientes implantados precisam de segredo próprio.
+Declare tipos, limites e formatos adequados a cada valor. Faça coerções
+explicitamente, como texto para porta numérica, e restrinja opções enumeradas.
+Strings vazias são tratadas como ausência.
 
-## Como adicionar configuração
+Use defaults somente quando forem válidos para o contexto esperado. Segredos
+de desenvolvimento não servem como credenciais de implantação. Não versione
+segredos nem os inclua em exemplos, logs ou mensagens públicas.
 
-1. Declare a variável no schema de servidor com tipo, validação, obrigatoriedade e default coerentes.
-2. Atualize o exemplo de configuração local, sem incluir credenciais reais.
-3. Consuma a propriedade tipada no pacote responsável pela funcionalidade.
-4. Considere que uma nova variável obrigatória afeta todos os consumidores que importam `env`,
-   incluindo ferramentas de banco, mesmo quando não usam diretamente aquela integração.
+Uma variável opcional permite validar o ambiente sem ela, mas não garante
+funcionamento da integração. Considere clientes inicializados durante a
+importação e configure suas dependências antes de carregá-los.
 
-Não adicione dependências de negócio a este pacote. Se o web precisar de configuração pública,
-defina um contrato próprio para o navegador e exponha somente valores públicos, sem reaproveitar
-o objeto de configuração secreta do servidor.
+A existência de uma variável no schema não aplica a configuração sozinha:
+o consumidor responsável precisa usar seu valor tipado.
+
+## Evolução
+
+Ao adicionar ou mudar configuração:
+
+1. Defina nome, tipo, obrigatoriedade, validação e default no contrato de servidor.
+2. Atualize o exemplo de configuração local com valores fictícios.
+3. Consuma o valor tipado na integração responsável.
+4. Confira os efeitos sobre todos os consumidores, incluindo ferramentas de banco
+   que importam o mesmo contrato.
+
+Uma variável obrigatória afeta todos os importadores, mesmo os que não usam
+diretamente a integração correspondente. Evite acoplamento acidental entre
+configuração e regras de negócio.

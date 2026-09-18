@@ -1,113 +1,90 @@
-# Web: composição da interface e consumo da API
+# Padrões do web
 
-## Responsabilidade e organização por camada
+## Responsabilidade e composição
 
-Este pacote é uma aplicação React com Vite, TanStack Router, TanStack Query e Tailwind CSS. Executa
-no navegador e acessa o servidor por HTTP. Não importe os pacotes de banco, e-mail ou ambiente de
-servidor, nem compartilhe contratos por imports internos da API.
+O web usa React, Vite, TanStack Router, TanStack Query e Tailwind CSS.
+Acesse o servidor por HTTP, sem importar implementação da API ou pacotes de
+infraestrutura de servidor.
 
-| Camada                        | Responsabilidade                                                   |
-| ----------------------------- | ------------------------------------------------------------------ |
-| Rotas e layouts               | Definir navegação, metadados e composição das páginas              |
-| Componentes de funcionalidade | Apresentar dados e interações específicas do produto por props     |
-| Primitivas de UI              | Encapsular aparência, semântica e interação visual reutilizável    |
-| Schemas de formulário         | Validar valores da interface e mensagens para o usuário            |
-| Integrações                   | Compor providers e configuração global de serviços do frontend     |
-| Utilitários de aplicação      | Compartilhar políticas como configuração HTTP e metadados          |
-| Consumo gerado da API         | Representar o contrato OpenAPI em tipos, clientes, hooks e schemas |
-| Tipos de apresentação e mocks | Representar necessidades visuais e dados temporários do protótipo  |
+Rotas e layouts compõem páginas, navegação e metadados. Componentes de
+funcionalidade podem coordenar consultas e ações de um bloco do produto.
+Componentes de apresentação recebem dados e callbacks por props. Primitivas de
+UI encapsulam aparência, semântica e interação reutilizável.
 
-## Inicialização e providers
+Use componentes funcionais, props tipadas e preferencialmente exports nomeados.
+Preserve a convenção local entre imports relativos e aliases `#/` ou `@/`.
+Use textos de interface em português e os tokens visuais compartilhados.
 
-A configuração do cliente HTTP é importada antes da renderização. Ela ajusta a instância compartilhada
-gerada pelo Kubb; preservar essa ordem garante que os consumidores usem a configuração da aplicação.
+## Inicialização e integrações
 
-As integrações envolvem o router com um `QueryClientProvider` e montam um único toaster global.
-O `QueryClient` é criado de forma estável com inicialização de estado e usa `staleTime` de cinco
-minutos para queries. Não recrie o cliente a cada renderização nem acrescente um provider por página.
-Políticas diferentes devem ser explícitas na query que precisa delas.
+Configure o cliente HTTP compartilhado antes de renderizar seus consumidores.
+Mantenha um `QueryClient` estável e um toaster global na composição de providers
+acima do router. Não recrie clientes a cada renderização nem por página.
 
-O router ativo usa preload por intenção e restauração de rolagem. Novos providers compartilhados
-devem entrar na composição de integrações; estado usado por uma única funcionalidade deve permanecer
-local. Modifique a instância efetivamente montada ao alterar opções de navegação.
+Centralize políticas de cache, tentativas e transporte. Sobrescreva-as por
+consulta apenas quando a funcionalidade exigir. Opções de navegação devem ser
+aplicadas à instância efetivamente montada.
 
-## Comunicação HTTP e geração de código
+## Consumo do contrato HTTP
 
-A fonte de verdade do transporte está nos schemas das rotas Fastify. O Kubb lê o OpenAPI da API em
-`http://localhost:8080/openapi.json` e produz tipos TypeScript, clientes Axios, hooks React Query,
-schemas Zod e o runtime compartilhado de requisições.
+O Kubb transforma o OpenAPI da API em tipos, clientes Axios, hooks React Query
+e schemas Zod. Ao mudar o contrato:
 
-Para atualizar esse consumo:
-
-1. Implemente ou altere a operação na API, incluindo um `operationId` estável e respostas tipadas.
-2. Inicie a API com `pnpm --filter @authlab/api dev` e confira que ela publica o contrato atualizado.
+1. Atualize os schemas e o `operationId` da operação no servidor.
+2. Disponibilize a API com a especificação atualizada.
 3. Execute `pnpm --filter @authlab/web exec kubb generate`.
-4. Revise as mudanças geradas e ajuste os consumidores manuais.
+4. Revise artefatos gerados e consumidores manuais.
 
-A geração limpa `src/api` antes de recriar a saída. Não edite seus artefatos nem coloque wrappers,
-lógica de negócio ou documentação nesse diretório. Mudanças no transporte pertencem à configuração
-manual do cliente, fora da saída gerada; mudanças nos tipos pertencem ao contrato da API.
+A geração recria sua saída. Mantenha configuração manual do cliente, wrappers,
+lógica de aplicação e documentação fora dela. Não corrija contratos editando
+tipos ou schemas gerados.
 
-O cliente compartilhado usa atualmente `http://localhost:8080` como base e `withCredentials: true`.
-Não crie outra instância Axios por componente nem repita URLs nos consumidores. Credenciais no HTTP
-precisam ser compatíveis com cookies e CORS no servidor; não comprovam que há uma sessão implementada.
+Centralize URL base e `withCredentials` no cliente compartilhado. Coordene
+credenciais com cookies e CORS da API, sem repetir URLs ou criar outra instância
+Axios por componente.
 
-Use hooks gerados em componentes ou hooks de aplicação que precisam de estado de consulta/mutação.
-Use clientes gerados em código imperativo, onde hooks React não podem ser chamados. Os clientes
-retornam um resultado de requisição; `.unwrap()` entrega o corpo de sucesso. As mutações geradas
-usam esse mecanismo para propagar falhas ao React Query.
+Use hooks gerados em componentes ou hooks de aplicação; use clientes gerados em
+fluxos imperativos. O resultado dos clientes oferece `.unwrap()` para obter o
+corpo de sucesso e propagar falhas. Respeite o formato de erro do cliente sem
+presumir que toda falha terá uma resposta HTTP.
 
-## Estado e integração dos formulários
+## Estado, formulários e consultas
 
-Mantenha valores e validação dos formulários no React Hook Form. A página ou um hook de aplicação
-coordena a chamada HTTP e entrega ao formulário um callback que retorna a Promise da operação.
-Isso permite que `isSubmitting` acompanhe o envio real.
+Use React Query como fonte do estado remoto. Reutilize chaves geradas e atualize,
+invalide ou remova as consultas afetadas após mutações, especialmente em mudanças
+de sessão. Evite cópias desnecessárias de respostas em estado local.
 
-Use o cache React Query para estado remoto. Ao integrar uma mutação que altera dados já consultados,
-atualize ou invalide as queries afetadas usando suas chaves, sem duplicar a resposta em estados locais
-desnecessários. Estado puramente visual pode usar estado React local.
+Formulários usam React Hook Form com `zodResolver`. Reutilize tipos e schemas
+gerados quando os valores corresponderem ao contrato HTTP. Validações ou formatos
+exclusivos da interface podem ser locais, com conversão explícita para o transporte.
 
-Schemas gerados representam o contrato HTTP; schemas de formulário representam a experiência de
-entrada. Faça conversões explícitas quando os formatos divergirem. No cadastro atual, os valores
-`name`, `email`, `password` e `showOnWall` já correspondem ao corpo gerado e são enviados pela página
-com `useCreateAccount`; conflito de e-mail é tratado como erro específico antes do fallback genérico.
+O formulário recebe `onSubmit` e aguarda sua Promise. O responsável pela mutação
+coordena notificações, cache e navegação. Defina um único responsável por
+apresentar cada falha, incluindo fallback para erros sem resposta.
 
-## Dados mockados e migração para a API
+Dados de negócio vêm da API. Trate carregamento, sucesso, resposta vazia e erro
+como estados distintos; não substitua falhas por dados fictícios nem mantenha
+skeletons indefinidamente após uma falha.
 
-Os dados de negócio estão mockados temporariamente para permitir o desenvolvimento da interface.
-Posteriormente, o membro atual, a lista de membros do mural e as contagens deverão vir da API,
-incluindo a contagem hoje fixa no layout de autenticação. A API será a fonte de verdade; os mocks
-não constituem uma solução permanente de dados para o web.
+## Sessão e navegação
 
-Enquanto os endpoints não estiverem disponíveis, mantenha os dados simulados isolados e forneça-os
-aos componentes por props. Evite espalhar novos valores de negócio fixos em páginas e componentes.
+A sessão é mantida pelo servidor em cookie HTTP-only e consultada pelo perfil.
+Não mantenha tokens em armazenamento acessível ao JavaScript nem use um booleano
+local como autoridade de autenticação.
 
-Ao disponibilizar cada operação na API:
+Proteja a área autenticada no limite do ramo e redirecione usuários com sessão
+válida para fora dos formulários de acesso. Aguarde a consulta antes de decidir
+a navegação. Diferencie sessão inválida de indisponibilidade da API no tratamento
+de erros; o guard do navegador não substitui proteção do servidor.
 
-1. Defina o contrato real no servidor e regenere os clientes, hooks e tipos com Kubb.
-2. Substitua a origem mockada na página, layout ou hook de aplicação responsável pela consulta.
-3. Use React Query para acompanhar carregamento, erro, cache e atualização dos dados remotos.
-4. Converta a resposta para as props de apresentação, preservando os componentes visuais.
-5. Trate também respostas vazias e remova o uso do mock naquele fluxo. Uma falha de requisição deve
-   aparecer como erro, sem substituir silenciosamente a resposta por dados fictícios.
-
-Os componentes do mural recebem um tipo de apresentação de membro. O número do membro e os dados
-simulados não definem o modelo do banco nem obrigam a API a reproduzir a estrutura do mock. Formatação
-de datas e iniciais pode permanecer no web; identidade, datas de entrada, numeração e contagens de
-negócio devem ser obtidas ou definidas pelo contrato da API, sem inventar valores no frontend.
-
-## Convenções de apresentação e estilo
-
-Use componentes funcionais, props tipadas e exports nomeados. O web aceita os aliases `#/` e `@/`
-para fontes locais; preserve a convenção do contexto editado. A configuração é própria do bundler,
-sem exigir as mesmas extensões de import dos pacotes de servidor.
-
-Preserve os tokens visuais, as primitivas compartilhadas e os textos de interface em português.
-As instruções locais de rotas, componentes, UI e schemas detalham esses padrões.
+Após entrar ou sair, mantenha o cache de sessão e de dados privados coerente
+com a nova identidade. Use as operações geradas para autenticação e encerramento;
+navegar para outra página não encerra a sessão.
 
 ## Verificação
 
-Use `pnpm --filter @authlab/web build` para compilar a aplicação e
-`pnpm --filter @authlab/web exec tsc --noEmit` para analisar tipos. Verifique também navegação,
-metadados, estados de formulário e responsividade conforme a mudança. O pacote ainda não declara
-tarefas próprias de testes ou lint.
+Use `pnpm --filter @authlab/web build` e
+`pnpm --filter @authlab/web exec tsc --noEmit` para mudanças de implementação.
+Confira navegação, sessão, estados de consulta e envio, acessibilidade e
+responsividade conforme a funcionalidade alterada. O build Vite não substitui
+a análise de tipos.

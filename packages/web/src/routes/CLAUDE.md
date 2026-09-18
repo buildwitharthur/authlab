@@ -1,64 +1,62 @@
-# Rotas, páginas e layouts
+# Padrões de rotas e layouts
 
-## Padrão de criação de rotas
+## Definição e geração
 
-O TanStack Router descobre a hierarquia a partir da organização das rotas. Exporte `Route` com
-`createFileRoute` nas rotas de aplicação; a raiz usa `createRootRoute`. A árvore final e seus tipos
-são gerados e não devem ser alterados manualmente.
+Use TanStack Router com `createFileRoute` nas rotas de aplicação e
+`createRootRoute` na raiz. Exporte `Route` e deixe a árvore e seus tipos
+sob responsabilidade do gerador.
 
-- Segmentos prefixados por `_` organizam rotas sem acrescentar aquele segmento à URL pública.
-- O token `index` representa a página de entrada do ramo.
-- O token de rota configurado no plugin Vite é `layout`, usado para o contêiner de um ramo.
-- O identificador usado por `createFileRoute` acompanha a hierarquia interna; navegação usa a URL
-  pública tipada pelo router.
+Preserve as convenções de descoberta: prefixo `_` para segmentos sem URL
+pública, `index` para a entrada de um ramo e `layout` como token de layout.
+O identificador interno da rota e o destino público de navegação têm papéis
+diferentes.
 
-Por exemplo, o ramo de autenticação é sem segmento público: entrada está em `/` e cadastro em
-`/create-account`. O ramo de aplicação tem o prefixo `/app`; seu agrupamento interno de boas-vindas
-não acrescenta outro segmento à URL.
+Mantenha os mesmos tokens e opções nos pontos de geração usados pelo projeto,
+incluindo plugin Vite e CLI. Confira essa compatibilidade antes de alternar o
+gerador; não ajuste a árvore gerada manualmente.
 
-## Separação de página e layout
+## Composição e ações
 
-Uma página compõe a funcionalidade: títulos locais, componentes visuais e coordenação das ações.
-Evite implementar controles de formulário ou primitivas genéricas dentro dela.
+Uma página compõe a funcionalidade e coordena ações que afetam navegação,
+notificações e cache. Reutilize formulários e componentes visuais em vez de
+implementar controles genéricos na página.
 
-Quando uma ação usa uma mutação gerada, a página chama o hook, trata respostas conhecidas e decide
-os efeitos de sucesso, como notificação e navegação. Reconheça erros HTTP específicos pelo tipo do
-cliente e pelo status; depois de tratar um caso esperado, retorne. Relance falhas desconhecidas para
-que o formulário ou o limite de erro responsável apresente o fallback, sem duplicar notificações.
+Layouts mantêm estrutura e políticas compartilhadas de um ramo, renderizando
+descendentes com `Outlet`. Evite repetir cabeçalhos, rodapés ou guards nas
+páginas filhas. A raiz integra `HeadContent` e `Outlet`; providers globais
+permanecem acima do router.
 
-Um layout mantém a estrutura compartilhada do ramo e renderiza os descendentes com `Outlet`.
-Use-o para cabeçalho, rodapé, largura de conteúdo e navegação compartilhada; não repita essa estrutura
-nas páginas. O layout de autenticação envolve os formulários, e o layout da aplicação mantém a
-estrutura da área de membro.
+Consultas podem ser coordenadas pela página, layout, hook de aplicação ou
+componente de funcionalidade que detenha a responsabilidade pelos dados.
+Escolha o escopo que compartilha o resultado ou controla seu ciclo de vida,
+preservando componentes de apresentação alimentados por props.
 
-A raiz renderiza `HeadContent` e `Outlet`. Providers globais ficam na composição de integrações,
-acima do router. Não replique QueryClient ou toaster em layouts.
+Mutações usam hooks gerados e retornam a Promise ao formulário. Trate efeitos
+de sucesso e erro no responsável pela ação, inclusive em callbacks da mutação.
+Forneça fallback para falhas sem corpo HTTP e evite notificações duplicadas ou
+rejeições sem tratamento no limite da interação.
 
-As páginas e layouts que hoje usam mocks deverão consumir a API quando os endpoints estiverem
-disponíveis. Isso inclui o membro atual, o mural e a contagem de membros exibida na autenticação.
-Faça a troca da origem dos dados nesse ponto de composição ou em um hook de aplicação, mantendo
-os componentes visuais alimentados por props e tratando carregamento, erro e resposta vazia.
+## Sessão e estados remotos
+
+Aplique o guard no ramo autenticado. Consulte a sessão antes de renderizar
+conteúdo privado ou redirecionar. No ramo de acesso, direcione usuários já
+autenticados à área de membro.
+
+A decisão de navegação usa o estado remoto da sessão. Mantenha seu cache coerente
+após entrada e saída, distinguindo carregamento, ausência de sessão e erro de
+consulta. A proteção visual não substitui autenticação e autorização da API.
+
+Associe skeletons ao carregamento real, no escopo substituído pela consulta.
+Trate falhas e respostas vazias explicitamente. Preserve estruturas já
+disponíveis quando isso fizer sentido para o estado apresentado.
 
 ## Metadados e navegação
 
-Defina `head` usando `createRouteMetadata`, com título e descrição específicos. Esse helper compõe
-metadados básicos, robots, Open Graph e Twitter. Use `noIndex` para páginas que não devem ser
-indexadas, como a área de membro; isso não controla acesso nem substitui autenticação.
+Defina `head` com `createRouteMetadata`, usando título e descrição próprios.
+Use `noIndex` em conteúdo que não deve ser indexado; metadados não controlam
+acesso.
 
-Use `Link` do TanStack Router para navegação interna e destinos públicos tipados. Quando o estado
-ativo precisar corresponder exatamente à página, use `activeOptions` com `exact` e preserve
-`aria-current`. Links de troca entre páginas de entrada e cadastro são navegação, mesmo com aparência
-de abas; primitivas de abas são para alternar painéis dentro da mesma página.
-
-## Carregamento, proteção e geração
-
-Ao integrar dados remotos, trate carregamento e erro no escopo da página ou rota. Os skeletons
-existentes podem ocupar o espaço de `Outlet`, preservando cabeçalho e rodapé; sua existência não
-significa que já estejam conectados a um loader ou estado pendente.
-
-O layout `/app` ainda não verifica sessão. Quando houver autenticação, associe a verificação e os
-redirecionamentos ao ramo apropriado, além da autorização obrigatória na API.
-
-O fluxo Vite gera as rotas com a convenção `layout`. Há também um comando independente
-`generate-routes`, mas sua configuração atual não declara esse token; alinhe as configurações antes
-de depender dele. Não corrija diferenças de geração editando a árvore resultante à mão.
+Use `Link` e destinos tipados para navegação interna. Quando a indicação ativa
+exigir correspondência exata, use `activeOptions` com `exact` e preserve
+`aria-current`. Mudanças de página continuam sendo links mesmo quando
+apresentadas visualmente como abas; abas de UI alternam painéis na mesma página.
