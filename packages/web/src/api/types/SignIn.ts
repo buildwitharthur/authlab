@@ -3,28 +3,7 @@
 * Do not edit manually.
 */
 
-/**
- * @example {"id":"b3f1c9de-6e2a-4c3a-9f9b-6b5e2b6a2f2e","name":"Arthur Reis","email":"arthur@example.com","memberNumber":42,"joinedAt":"2026-09-18T12:00:00.000Z","showWall":true}
- * @type object
-*/
-export type SignInStatus200 = {
-    id: string;
-    name: string;
-    email: string;
-    /**
-     * @minLength -9007199254740991
-     * @maxLength 9007199254740991
-     * @type integer
-    */
-    memberNumber: number;
-    /**
-     * @description
-     * Format: `date-time`
-     * @type string
-    */
-    joinedAt: string;
-    showWall: boolean;
-};
+export type SignInStatus200 = null;
 
 /**
  * @example {"error":"UNAUTHORIZED","message":"Invalid email or password","statusCode":401}

@@ -1,7 +1,9 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
 import { createRouteMetadata } from '../../lib/route-metadata';
 import { AppFooter } from '../../components/app-footer';
 import { AppHeader } from '../../components/app-header';
+import { AppSkeleton } from '#/components/app-skeleton';
+import { useProfile } from '../../api/hooks/useProfile';
 
 export const Route = createFileRoute('/app')({
     head: () =>
@@ -14,6 +16,12 @@ export const Route = createFileRoute('/app')({
 });
 
 function AppLayout() {
+    const { isLoading, data: user } = useProfile({ query: { retry: false } });
+
+    if (isLoading) return <AppSkeleton />;
+
+    if (!user) return <Navigate to="/" />;
+
     return (
         <div className="flex min-h-svh flex-col bg-[radial-gradient(circle_at_82%_8%,color-mix(in_srgb,var(--brand-primary)_5%,transparent),transparent_26%)]">
             <AppHeader />

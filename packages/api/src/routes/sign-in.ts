@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { env } from '@authlab/env';
 
 import { UnauthorizedError } from '@/errors/unauthorized-error.js';
+import { SESSION_COOKIE_NAME } from '@/plugins/jwt.js';
 
 const signInBodySchema = z
     .object({
@@ -62,7 +63,7 @@ export const signIn: FastifyPluginAsyncZod = async (app) => {
 
             const token = await reply.jwtSign({ sub: user.id }, { expiresIn: '7d' });
 
-            reply.setCookie('auth-lab-session', token, {
+            reply.setCookie(SESSION_COOKIE_NAME, token, {
                 httpOnly: true,
                 sameSite: 'lax',
                 secure: env.NODE_ENV === 'production',

@@ -5,14 +5,7 @@
 
 import * as z from 'zod'
 
-export const signInStatus200Schema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string(),
-  memberNumber: z.int().min(-9007199254740991).max(9007199254740991),
-  joinedAt: z.iso.datetime(),
-  showWall: z.boolean(),
-}).strict().meta({ examples: [{}] })
+export const signInStatus200Schema = z.null()
 
 export const signInStatus401Schema = z.object({
   error: z.string(),
