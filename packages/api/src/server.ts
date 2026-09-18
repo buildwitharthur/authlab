@@ -8,6 +8,7 @@ import { rateLimitPlugin } from "@/plugins/rate-limit.js";
 import { scalarPlugin } from "@/plugins/scalar.js";
 import { swaggerPlugin } from "@/plugins/swagger.js";
 import { createAccount } from "@/routes/create-account.js";
+import { signIn } from "@/routes/sign-in.js";
 import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-type-provider-zod";
 
 export const app = fastify({
@@ -27,5 +28,6 @@ scalarPlugin(app);
 app.get("/health", () => ({ status: "ok" }));
 
 app.register(createAccount);
+app.register(signIn);
 
 app.listen({ port: env.PORT, host: env.HOST });

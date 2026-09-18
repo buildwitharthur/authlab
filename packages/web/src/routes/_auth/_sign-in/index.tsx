@@ -1,8 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { createRouteMetadata } from '../../../lib/route-metadata';
 import { toast } from 'sonner';
+import { ResponseError } from '../../../api/.kubb/client';
+import { useSignIn } from '../../../api/hooks/useSignIn';
 import { SignInForm } from '../../../components/sign-in-form';
 import { Accent, Heading, Text } from '../../../components/ui/typography';
+import type { SignInValues } from '../../../schemas/sign-in';
 
 export const Route = createFileRoute('/_auth/_sign-in/')({
     head: () =>
@@ -14,9 +17,21 @@ export const Route = createFileRoute('/_auth/_sign-in/')({
 });
 
 function SignInPage() {
-    function handleSignIn() {
-        // Conectar ao endpoint de autenticação quando estiver disponível.
-        toast.info('O login ainda não está disponível. Tente novamente em breve.');
+    const navigate = useNavigate();
+    const { mutateAsync } = useSignIn();
+
+    async function handleSignIn(values: SignInValues) {
+        try {
+            await mutateAsync({ body: values });
+            toast.success('Bem-vindo de volta!');
+            navigate({ to: '/app' });
+        } catch (error) {
+            if (error instanceof ResponseError && error.status === 401) {
+                toast.error('E-mail ou senha inválidos.');
+                return;
+            }
+            throw error;
+        }
     }
 
     return (

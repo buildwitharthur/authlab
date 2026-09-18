@@ -3,33 +3,7 @@
 * Do not edit manually.
 */
 
-/**
- * @example {"id":"3fa85f64-5717-4562-b3fc-2c963f66afa6","name":"Arthur Reis","email":"arthur@example.com","memberNumber":1,"showOnWall":true,"joinedAt":"2026-09-18T12:00:00.000Z"}
- * @type object
-*/
-export type CreateAccountStatus201 = {
-    /**
-     * @description
-     * Format: `uuid`
-     * @type string
-    */
-    id: string;
-    name: string;
-    email: string;
-    /**
-     * @minLength -9007199254740991
-     * @maxLength 9007199254740991
-     * @type integer
-    */
-    memberNumber: number;
-    showOnWall: boolean;
-    /**
-     * @description
-     * Format: `date-time`
-     * @type string
-    */
-    joinedAt: string;
-};
+export type CreateAccountStatus201 = null;
 
 /**
  * @example {"error":"CONFLICT","message":"E-mail already registered","statusCode":409}
